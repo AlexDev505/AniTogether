@@ -1,3 +1,4 @@
 PyQt6
 pyqt6-tools
 mpv
+loguru
