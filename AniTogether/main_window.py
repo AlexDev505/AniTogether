@@ -17,6 +17,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowMinimizeButtonHint
         )
 
+        self.frame_6.hide()
+
         self.setupSignals()
 
     def setupSignals(self) -> None:
