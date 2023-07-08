@@ -1,0 +1,1 @@
+pyside6-rcc "interface\resources\icons.qrc" -o "AniTogether\ui\icons_rc.py"

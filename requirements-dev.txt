@@ -1,4 +1,6 @@
 PyQt6
+pyqt6-tools
+Pyside6
 mpv
 loguru
 requests

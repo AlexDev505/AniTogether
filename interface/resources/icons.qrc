@@ -1,0 +1,7 @@
+<RCC>
+  <qresource prefix="base">
+    <file>line.svg</file>
+    <file>window.svg</file>
+    <file>cross.svg</file>
+  </qresource>
+</RCC>
