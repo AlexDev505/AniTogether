@@ -1,5 +1,9 @@
 <RCC>
   <qresource prefix="base">
+    <file>loading.gif</file>
+    <file>go.svg</file>
+    <file>crown.svg</file>
+    <file>group.svg</file>
     <file>line.svg</file>
     <file>window.svg</file>
     <file>cross.svg</file>

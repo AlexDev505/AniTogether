@@ -45,7 +45,7 @@ def formatter(record) -> str:
 
 
 # Считываем уровень логирования(по умолчанию DEBUG)
-logging_level = "DEBUG"
+logging_level = "TRACE"
 level_handler = LoggingLevel(logging_level)
 
 if os.environ.get("CONSOLE"):

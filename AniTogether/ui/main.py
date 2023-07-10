@@ -16,17 +16,22 @@ class Ui_MainWindow(object):
         self.centralwidget = QtWidgets.QWidget(parent=MainWindow)
         self.centralwidget.setStyleSheet(
             "QWidget {\n"
-            "    color: rgb(255,255,255);\n"
+            "    color:  rgb(255,255,255);\n"
             "}\n"
             "\n"
             "QFrame {\n"
             "    border: none;\n"
             "}\n"
             "\n"
+            "/* SCROLL AREA */\n"
+            "QScrollArea, QScrollArea > QWidget > QWidget {\n"
+            "    background: transparent;\n"
+            "}\n"
+            "\n"
             "/*  BUTTONS */\n"
             "QPushButton {\n"
             "    padding-left: 0.5px;\n"
-            "    background-color: rgba(0, 0, 0, 0);\n"
+            "    background-color: transparent;\n"
             "    border-radius: 5px;\n"
             "    border: none;\n"
             "}\n"
@@ -36,6 +41,19 @@ class Ui_MainWindow(object):
             "}\n"
             "QPushButton:pressed {\n"
             "    background-color: rgb(110,110,110);\n"
+            "}\n"
+            "\n"
+            "/* LINE EDIT */\n"
+            "QLineEdit {\n"
+            "    background-color: rgb(30,30,30);\n"
+            "    border-radius: 3px;\n"
+            "    padding: 8px;\n"
+            "    border: none;\n"
+            "}\n"
+            "\n"
+            "/* LINE */\n"
+            "#line {\n"
+            "    background-color: rgb(47,47,47);\n"
             "}\n"
             "\n"
             "\n"
@@ -51,15 +69,30 @@ class Ui_MainWindow(object):
             "#centralFrame {\n"
             "    background-color: rgb(18,18,18);\n"
             "}\n"
-            "#centralFrame * {\n"
-            "    background-color: rgba(0,0,0,0);\n"
-            "}"
+            "#joinToRoomLineEditFrame QLineEdit,\n"
+            "#searchLineEditFrame QLineEdit {\n"
+            "    border-radius: 0px;\n"
+            "    border-top-left-radius: 3px;\n"
+            "    border-bottom-left-radius: 3px;\n"
+            "}\n"
+            "#joinToRoomLineEditFrame QPushButton,\n"
+            "#searchLineEditFrame QLabel {\n"
+            "    background-color: rgb(30,30,30);\n"
+            "    padding-right: 8px;\n"
+            "    border-radius: 0px;\n"
+            "    border-top-right-radius: 3px;\n"
+            "    border-bottom-right-radius: 3px;\n"
+            "}\n"
+            "\n"
+            "\n"
+            "\n"
+            ""
         )
         self.centralwidget.setObjectName("centralwidget")
-        self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
-        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
-        self.verticalLayout.setSpacing(0)
-        self.verticalLayout.setObjectName("verticalLayout")
+        self.centralWidgetLayout = QtWidgets.QVBoxLayout(self.centralwidget)
+        self.centralWidgetLayout.setContentsMargins(0, 0, 0, 0)
+        self.centralWidgetLayout.setSpacing(0)
+        self.centralWidgetLayout.setObjectName("centralWidgetLayout")
         self.topFrame = QtWidgets.QFrame(parent=self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Policy.Expanding,
@@ -73,9 +106,9 @@ class Ui_MainWindow(object):
         self.topFrame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.topFrame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.topFrame.setObjectName("topFrame")
-        self.horizontalLayout = QtWidgets.QHBoxLayout(self.topFrame)
-        self.horizontalLayout.setContentsMargins(15, 0, 7, 0)
-        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.topFrameLayout = QtWidgets.QHBoxLayout(self.topFrame)
+        self.topFrameLayout.setContentsMargins(15, 0, 7, 0)
+        self.topFrameLayout.setObjectName("topFrameLayout")
         self.logo = QtWidgets.QLabel(parent=self.topFrame)
         sizePolicy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Policy.Expanding,
@@ -90,17 +123,20 @@ class Ui_MainWindow(object):
         font.setBold(True)
         self.logo.setFont(font)
         self.logo.setObjectName("logo")
-        self.horizontalLayout.addWidget(self.logo)
-        self.frame = QtWidgets.QFrame(parent=self.topFrame)
-        self.frame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
-        self.frame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
-        self.frame.setObjectName("frame")
-        self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.frame)
-        self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
-        self.horizontalLayout_2.setSpacing(0)
-        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        self.minimizeAppBtn = QtWidgets.QPushButton(parent=self.frame)
+        self.topFrameLayout.addWidget(self.logo)
+        self.appControlBtnsFrame = QtWidgets.QFrame(parent=self.topFrame)
+        self.appControlBtnsFrame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
+        self.appControlBtnsFrame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
+        self.appControlBtnsFrame.setObjectName("appControlBtnsFrame")
+        self.appControlBtnsFrameLayout = QtWidgets.QHBoxLayout(self.appControlBtnsFrame)
+        self.appControlBtnsFrameLayout.setContentsMargins(0, 0, 0, 0)
+        self.appControlBtnsFrameLayout.setSpacing(0)
+        self.appControlBtnsFrameLayout.setObjectName("appControlBtnsFrameLayout")
+        self.minimizeAppBtn = QtWidgets.QPushButton(parent=self.appControlBtnsFrame)
         self.minimizeAppBtn.setMinimumSize(QtCore.QSize(25, 25))
+        self.minimizeAppBtn.setCursor(
+            QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor)
+        )
         icon = QtGui.QIcon()
         icon.addPixmap(
             QtGui.QPixmap(":/base/line.svg"),
@@ -110,9 +146,12 @@ class Ui_MainWindow(object):
         self.minimizeAppBtn.setIcon(icon)
         self.minimizeAppBtn.setIconSize(QtCore.QSize(10, 10))
         self.minimizeAppBtn.setObjectName("minimizeAppBtn")
-        self.horizontalLayout_2.addWidget(self.minimizeAppBtn)
-        self.maximizeAppBtn = QtWidgets.QPushButton(parent=self.frame)
+        self.appControlBtnsFrameLayout.addWidget(self.minimizeAppBtn)
+        self.maximizeAppBtn = QtWidgets.QPushButton(parent=self.appControlBtnsFrame)
         self.maximizeAppBtn.setMinimumSize(QtCore.QSize(25, 25))
+        self.maximizeAppBtn.setCursor(
+            QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor)
+        )
         icon1 = QtGui.QIcon()
         icon1.addPixmap(
             QtGui.QPixmap(":/base/window.svg"),
@@ -122,9 +161,12 @@ class Ui_MainWindow(object):
         self.maximizeAppBtn.setIcon(icon1)
         self.maximizeAppBtn.setIconSize(QtCore.QSize(12, 12))
         self.maximizeAppBtn.setObjectName("maximizeAppBtn")
-        self.horizontalLayout_2.addWidget(self.maximizeAppBtn)
-        self.closeAppBtn = QtWidgets.QPushButton(parent=self.frame)
+        self.appControlBtnsFrameLayout.addWidget(self.maximizeAppBtn)
+        self.closeAppBtn = QtWidgets.QPushButton(parent=self.appControlBtnsFrame)
         self.closeAppBtn.setMinimumSize(QtCore.QSize(25, 25))
+        self.closeAppBtn.setCursor(
+            QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor)
+        )
         icon2 = QtGui.QIcon()
         icon2.addPixmap(
             QtGui.QPixmap(":/base/cross.svg"),
@@ -134,9 +176,9 @@ class Ui_MainWindow(object):
         self.closeAppBtn.setIcon(icon2)
         self.closeAppBtn.setIconSize(QtCore.QSize(10, 10))
         self.closeAppBtn.setObjectName("closeAppBtn")
-        self.horizontalLayout_2.addWidget(self.closeAppBtn)
-        self.horizontalLayout.addWidget(self.frame)
-        self.verticalLayout.addWidget(self.topFrame)
+        self.appControlBtnsFrameLayout.addWidget(self.closeAppBtn)
+        self.topFrameLayout.addWidget(self.appControlBtnsFrame)
+        self.centralWidgetLayout.addWidget(self.topFrame)
         self.centralFrame = QtWidgets.QFrame(parent=self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Policy.Preferred,
@@ -149,68 +191,200 @@ class Ui_MainWindow(object):
         self.centralFrame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.centralFrame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.centralFrame.setObjectName("centralFrame")
-        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.centralFrame)
-        self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
-        self.verticalLayout_2.setSpacing(0)
-        self.verticalLayout_2.setObjectName("verticalLayout_2")
+        self.centralFrameLayout = QtWidgets.QVBoxLayout(self.centralFrame)
+        self.centralFrameLayout.setContentsMargins(50, 30, 50, 0)
+        self.centralFrameLayout.setSpacing(0)
+        self.centralFrameLayout.setObjectName("centralFrameLayout")
         self.scrollArea = QtWidgets.QScrollArea(parent=self.centralFrame)
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaContainer = QtWidgets.QWidget()
-        self.scrollAreaContainer.setGeometry(QtCore.QRect(0, 0, 954, 600))
+        self.scrollAreaContainer.setGeometry(QtCore.QRect(0, 0, 854, 570))
         self.scrollAreaContainer.setObjectName("scrollAreaContainer")
-        self.verticalLayout_5 = QtWidgets.QVBoxLayout(self.scrollAreaContainer)
-        self.verticalLayout_5.setSpacing(20)
-        self.verticalLayout_5.setObjectName("verticalLayout_5")
-        self.frame_3 = QtWidgets.QFrame(parent=self.scrollAreaContainer)
+        self.scrollAreaContainerLayout = QtWidgets.QVBoxLayout(self.scrollAreaContainer)
+        self.scrollAreaContainerLayout.setContentsMargins(0, 0, 0, 0)
+        self.scrollAreaContainerLayout.setSpacing(20)
+        self.scrollAreaContainerLayout.setObjectName("scrollAreaContainerLayout")
+        self.searchFrame = QtWidgets.QFrame(parent=self.scrollAreaContainer)
         sizePolicy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Policy.Preferred,
             QtWidgets.QSizePolicy.Policy.Preferred,
         )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.frame_3.sizePolicy().hasHeightForWidth())
-        self.frame_3.setSizePolicy(sizePolicy)
-        self.frame_3.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
-        self.frame_3.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
-        self.frame_3.setObjectName("frame_3")
-        self.horizontalLayout_3 = QtWidgets.QHBoxLayout(self.frame_3)
-        self.horizontalLayout_3.setContentsMargins(0, 0, 0, 0)
-        self.horizontalLayout_3.setSpacing(20)
-        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
-        self.lineEdit = QtWidgets.QLineEdit(parent=self.frame_3)
+        sizePolicy.setHeightForWidth(self.searchFrame.sizePolicy().hasHeightForWidth())
+        self.searchFrame.setSizePolicy(sizePolicy)
+        self.searchFrame.setObjectName("searchFrame")
+        self.searchFrameLayout = QtWidgets.QHBoxLayout(self.searchFrame)
+        self.searchFrameLayout.setContentsMargins(0, 0, 0, 0)
+        self.searchFrameLayout.setSpacing(20)
+        self.searchFrameLayout.setObjectName("searchFrameLayout")
+        self.createRoomLayout = QtWidgets.QVBoxLayout()
+        self.createRoomLayout.setSpacing(5)
+        self.createRoomLayout.setObjectName("createRoomLayout")
+        self.createRoomLabelLayout = QtWidgets.QHBoxLayout()
+        self.createRoomLabelLayout.setObjectName("createRoomLabelLayout")
+        self.createRoomIcon = QtWidgets.QLabel(parent=self.searchFrame)
+        self.createRoomIcon.setPixmap(QtGui.QPixmap(":/base/crown.svg"))
+        self.createRoomIcon.setObjectName("createRoomIcon")
+        self.createRoomLabelLayout.addWidget(self.createRoomIcon)
+        self.createRoomLabel = QtWidgets.QLabel(parent=self.searchFrame)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding,
+            QtWidgets.QSizePolicy.Policy.Preferred,
+        )
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.createRoomLabel.sizePolicy().hasHeightForWidth()
+        )
+        self.createRoomLabel.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
-        font.setPointSize(20)
-        self.lineEdit.setFont(font)
-        self.lineEdit.setObjectName("lineEdit")
-        self.horizontalLayout_3.addWidget(self.lineEdit)
-        self.pushButton = QtWidgets.QPushButton(parent=self.frame_3)
-        self.pushButton.setObjectName("pushButton")
-        self.horizontalLayout_3.addWidget(self.pushButton)
-        self.verticalLayout_5.addWidget(self.frame_3)
+        font.setFamily("Arial")
+        font.setPointSize(14)
+        font.setBold(True)
+        self.createRoomLabel.setFont(font)
+        self.createRoomLabel.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignLeading
+            | QtCore.Qt.AlignmentFlag.AlignLeft
+            | QtCore.Qt.AlignmentFlag.AlignVCenter
+        )
+        self.createRoomLabel.setObjectName("createRoomLabel")
+        self.createRoomLabelLayout.addWidget(self.createRoomLabel)
+        self.createRoomLayout.addLayout(self.createRoomLabelLayout)
+        self.searchLineEditFrame = QtWidgets.QFrame(parent=self.searchFrame)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Preferred,
+            QtWidgets.QSizePolicy.Policy.Preferred,
+        )
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.searchLineEditFrame.sizePolicy().hasHeightForWidth()
+        )
+        self.searchLineEditFrame.setSizePolicy(sizePolicy)
+        self.searchLineEditFrame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
+        self.searchLineEditFrame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
+        self.searchLineEditFrame.setObjectName("searchLineEditFrame")
+        self.searchLineEditLayout = QtWidgets.QHBoxLayout(self.searchLineEditFrame)
+        self.searchLineEditLayout.setContentsMargins(0, 0, 0, 0)
+        self.searchLineEditLayout.setSpacing(0)
+        self.searchLineEditLayout.setObjectName("searchLineEditLayout")
+        self.searchLineEdit = QtWidgets.QLineEdit(parent=self.searchLineEditFrame)
+        font = QtGui.QFont()
+        font.setFamily("Arial")
+        font.setPointSize(11)
+        font.setBold(True)
+        self.searchLineEdit.setFont(font)
+        self.searchLineEdit.setObjectName("searchLineEdit")
+        self.searchLineEditLayout.addWidget(self.searchLineEdit)
+        self.searchLineEditStatusLabel = QtWidgets.QLabel(
+            parent=self.searchLineEditFrame
+        )
+        self.searchLineEditStatusLabel.setObjectName("searchLineEditStatusLabel")
+        self.searchLineEditLayout.addWidget(self.searchLineEditStatusLabel)
+        self.createRoomLayout.addWidget(self.searchLineEditFrame)
+        self.searchFrameLayout.addLayout(self.createRoomLayout)
+        self.joinToRoomLayout = QtWidgets.QVBoxLayout()
+        self.joinToRoomLayout.setSpacing(5)
+        self.joinToRoomLayout.setObjectName("joinToRoomLayout")
+        self.joinToRoomLabelLayout = QtWidgets.QHBoxLayout()
+        self.joinToRoomLabelLayout.setSpacing(5)
+        self.joinToRoomLabelLayout.setObjectName("joinToRoomLabelLayout")
+        self.joinToRoomIcon = QtWidgets.QLabel(parent=self.searchFrame)
+        self.joinToRoomIcon.setPixmap(QtGui.QPixmap(":/base/group.svg"))
+        self.joinToRoomIcon.setObjectName("joinToRoomIcon")
+        self.joinToRoomLabelLayout.addWidget(self.joinToRoomIcon)
+        self.joinToRoomLabel = QtWidgets.QLabel(parent=self.searchFrame)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding,
+            QtWidgets.QSizePolicy.Policy.Preferred,
+        )
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.joinToRoomLabel.sizePolicy().hasHeightForWidth()
+        )
+        self.joinToRoomLabel.setSizePolicy(sizePolicy)
+        font = QtGui.QFont()
+        font.setFamily("Arial")
+        font.setPointSize(14)
+        font.setBold(True)
+        self.joinToRoomLabel.setFont(font)
+        self.joinToRoomLabel.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignLeading
+            | QtCore.Qt.AlignmentFlag.AlignLeft
+            | QtCore.Qt.AlignmentFlag.AlignVCenter
+        )
+        self.joinToRoomLabel.setObjectName("joinToRoomLabel")
+        self.joinToRoomLabelLayout.addWidget(self.joinToRoomLabel)
+        self.joinToRoomLayout.addLayout(self.joinToRoomLabelLayout)
+        self.joinToRoomLineEditFrame = QtWidgets.QFrame(parent=self.searchFrame)
+        self.joinToRoomLineEditFrame.setObjectName("joinToRoomLineEditFrame")
+        self.joinToRoomLineEditLayout = QtWidgets.QHBoxLayout(
+            self.joinToRoomLineEditFrame
+        )
+        self.joinToRoomLineEditLayout.setContentsMargins(0, 0, 0, 0)
+        self.joinToRoomLineEditLayout.setSpacing(0)
+        self.joinToRoomLineEditLayout.setObjectName("joinToRoomLineEditLayout")
+        self.joinToRoomLineEdit = QtWidgets.QLineEdit(
+            parent=self.joinToRoomLineEditFrame
+        )
+        font = QtGui.QFont()
+        font.setFamily("Arial")
+        font.setPointSize(11)
+        font.setBold(True)
+        self.joinToRoomLineEdit.setFont(font)
+        self.joinToRoomLineEdit.setObjectName("joinToRoomLineEdit")
+        self.joinToRoomLineEditLayout.addWidget(self.joinToRoomLineEdit)
+        self.joinToRoomBtn = QtWidgets.QPushButton(parent=self.joinToRoomLineEditFrame)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum
+        )
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.joinToRoomBtn.sizePolicy().hasHeightForWidth()
+        )
+        self.joinToRoomBtn.setSizePolicy(sizePolicy)
+        self.joinToRoomBtn.setCursor(
+            QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor)
+        )
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(
+            QtGui.QPixmap(":/base/go.svg"),
+            QtGui.QIcon.Mode.Normal,
+            QtGui.QIcon.State.Off,
+        )
+        self.joinToRoomBtn.setIcon(icon3)
+        self.joinToRoomBtn.setIconSize(QtCore.QSize(24, 24))
+        self.joinToRoomBtn.setObjectName("joinToRoomBtn")
+        self.joinToRoomLineEditLayout.addWidget(self.joinToRoomBtn)
+        self.joinToRoomLayout.addWidget(self.joinToRoomLineEditFrame)
+        self.searchFrameLayout.addLayout(self.joinToRoomLayout)
+        self.scrollAreaContainerLayout.addWidget(self.searchFrame)
         self.line = QtWidgets.QFrame(parent=self.scrollAreaContainer)
-        self.line.setMinimumSize(QtCore.QSize(0, 5))
-        self.line.setMaximumSize(QtCore.QSize(16777215, 5))
-        self.line.setStyleSheet("background-color: white")
+        self.line.setMaximumSize(QtCore.QSize(16777215, 1))
         self.line.setFrameShape(QtWidgets.QFrame.Shape.HLine)
         self.line.setFrameShadow(QtWidgets.QFrame.Shadow.Sunken)
         self.line.setObjectName("line")
-        self.verticalLayout_5.addWidget(self.line)
-        self.frame_4 = QtWidgets.QFrame(parent=self.scrollAreaContainer)
-        self.frame_4.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
-        self.frame_4.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
-        self.frame_4.setObjectName("frame_4")
-        self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.frame_4)
-        self.verticalLayout_4.setContentsMargins(0, 0, 0, 0)
-        self.verticalLayout_4.setObjectName("verticalLayout_4")
-        self.label_2 = QtWidgets.QLabel(parent=self.frame_4)
+        self.scrollAreaContainerLayout.addWidget(self.line)
+        self.historyFrame = QtWidgets.QFrame(parent=self.scrollAreaContainer)
+        self.historyFrame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
+        self.historyFrame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
+        self.historyFrame.setObjectName("historyFrame")
+        self.historyFrameLayout = QtWidgets.QVBoxLayout(self.historyFrame)
+        self.historyFrameLayout.setContentsMargins(0, 0, 0, 0)
+        self.historyFrameLayout.setObjectName("historyFrameLayout")
+        self.label_2 = QtWidgets.QLabel(parent=self.historyFrame)
         font = QtGui.QFont()
         font.setFamily("Arial")
-        font.setPointSize(20)
+        font.setPointSize(15)
+        font.setBold(True)
         self.label_2.setFont(font)
         self.label_2.setObjectName("label_2")
-        self.verticalLayout_4.addWidget(self.label_2)
-        self.frame_6 = QtWidgets.QFrame(parent=self.frame_4)
+        self.historyFrameLayout.addWidget(self.label_2)
+        self.frame_6 = QtWidgets.QFrame(parent=self.historyFrame)
         sizePolicy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Policy.Preferred,
             QtWidgets.QSizePolicy.Policy.Expanding,
@@ -223,8 +397,8 @@ class Ui_MainWindow(object):
         self.gridLayout = QtWidgets.QGridLayout(self.frame_6)
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.gridLayout.setObjectName("gridLayout")
-        self.verticalLayout_4.addWidget(self.frame_6)
-        self.label_3 = QtWidgets.QLabel(parent=self.frame_4)
+        self.historyFrameLayout.addWidget(self.frame_6)
+        self.label_3 = QtWidgets.QLabel(parent=self.historyFrame)
         sizePolicy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Policy.Expanding,
             QtWidgets.QSizePolicy.Policy.Expanding,
@@ -235,15 +409,16 @@ class Ui_MainWindow(object):
         self.label_3.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setFamily("Arial")
-        font.setPointSize(20)
+        font.setPointSize(15)
+        font.setBold(True)
         self.label_3.setFont(font)
         self.label_3.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.label_3.setObjectName("label_3")
-        self.verticalLayout_4.addWidget(self.label_3)
-        self.verticalLayout_5.addWidget(self.frame_4)
+        self.historyFrameLayout.addWidget(self.label_3)
+        self.scrollAreaContainerLayout.addWidget(self.historyFrame)
         self.scrollArea.setWidget(self.scrollAreaContainer)
-        self.verticalLayout_2.addWidget(self.scrollArea)
-        self.verticalLayout.addWidget(self.centralFrame)
+        self.centralFrameLayout.addWidget(self.scrollArea)
+        self.centralWidgetLayout.addWidget(self.centralFrame)
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
@@ -253,7 +428,15 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.logo.setText(_translate("MainWindow", "AniTogether"))
-        self.lineEdit.setPlaceholderText(_translate("MainWindow", "Что смотрим?"))
-        self.pushButton.setText(_translate("MainWindow", "Ураа"))
+        self.createRoomLabel.setText(_translate("MainWindow", "cоздать комнату"))
+        self.searchLineEdit.setPlaceholderText(
+            _translate("MainWindow", "Поиск релиза ...")
+        )
+        self.joinToRoomLabel.setText(
+            _translate("MainWindow", "присоединиться к просмотру")
+        )
+        self.joinToRoomLineEdit.setPlaceholderText(
+            _translate("MainWindow", "Номер комнаты ...")
+        )
         self.label_2.setText(_translate("MainWindow", "История"))
         self.label_3.setText(_translate("MainWindow", "Список пуст"))

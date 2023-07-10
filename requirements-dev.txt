@@ -5,3 +5,4 @@ mpv
 loguru
 requests
 anilibria.py
+async-lru

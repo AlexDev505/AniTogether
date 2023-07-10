@@ -1,9 +1,21 @@
-from PyQt6.QtCore import Qt
+from __future__ import annotations
+
+import typing as ty
+from functools import lru_cache
+
+from PyQt6.QtCore import Qt, QSize, QPoint
+from PyQt6.QtGui import QMovie
 from PyQt6.QtWidgets import QMainWindow
+from qasync import asyncSlot, asyncClose
 
 from logger import logger
-from ui import Ui_MainWindow
-from ui_function import window_geometry
+from ui import Ui_MainWindow, SearchResultWidget
+from ui_function import window_geometry, anilibria_agent
+
+
+if ty.TYPE_CHECKING:
+    from PyQt6.QtGui import QCloseEvent
+    from anilibria import Title
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -21,6 +33,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.setupSignals()
 
+        self.search_result_widget: SearchResultWidget | None = None
+
+        # self.searchLineEditStatusLabel.setMovie(movie)
+        # movie.frameChanged.connect(
+        #     lambda: self.joinToRoomBtn.setIcon(QIcon(movie.currentPixmap()))
+        # )
+        # movie.start()
+
     def setupSignals(self) -> None:
         logger.trace("Setting main window signals")
         self.closeAppBtn.clicked.connect(self.close)
@@ -31,3 +51,57 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # Подготавливаем область, отвечающую за перемещение окна
         window_geometry.prepareDragZone(self, self.topFrame)
+
+        self.searchLineEdit.textChanged.connect(self.search_titles)
+
+    @asyncSlot()
+    async def search_titles(self) -> None:
+        query = self.searchLineEdit.text()
+        if len(query) < 3:
+            return
+
+        if not self.searchLineEditStatusLabel.movie():
+            movie = self.create_loading_movie(self.searchLineEdit.height())
+            self.searchLineEditStatusLabel.setMovie(movie)
+            self.searchLineEditStatusLabel.setMinimumSize(movie.scaledSize())
+
+        try:
+            titles: list[Title] = await anilibria_agent.search_titles(
+                query, self.searchLineEdit
+            )
+        except anilibria_agent.SearchQueryUpdated:
+            return
+
+        self.searchLineEditStatusLabel.clear()
+
+        if not len(titles):
+            if self.search_result_widget:
+                self.search_result_widget.delete()
+                self.search_result_widget = None
+            return
+
+        if self.search_result_widget:
+            self.search_result_widget.delete()
+
+        self.search_result_widget = SearchResultWidget(self)
+        self.search_result_widget.show()
+        for title in titles:
+            title_widget = self.search_result_widget.addTitle()
+            title_widget.setTitle(title.names.ru)
+        pos = self.centralWidget().mapFromGlobal(
+            self.searchLineEdit.mapToGlobal(QPoint(0, 0))
+        )
+        pos.setY(pos.y() + self.searchLineEdit.height() + 5)
+        self.search_result_widget.move(pos)
+
+    @asyncClose
+    async def closeEvent(self, event: QCloseEvent) -> None:
+        await anilibria_agent.disconnect()
+
+    @staticmethod
+    @lru_cache()
+    def create_loading_movie(size: int) -> QMovie:
+        movie = QMovie(":/base/loading.gif")
+        movie.setScaledSize(QSize(size, size))
+        movie.start()
+        return movie
