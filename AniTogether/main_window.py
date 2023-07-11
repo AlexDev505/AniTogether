@@ -24,6 +24,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         super().__init__()
         self.setupUi(self)
 
+        self.setMinimumSize(820, 520)
+
         # Окно без рамок
         self.setWindowFlags(
             Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowMinimizeButtonHint
@@ -40,6 +42,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         #     lambda: self.joinToRoomBtn.setIcon(QIcon(movie.currentPixmap()))
         # )
         # movie.start()
+
+        window_geometry.prepareSizeGrips(self)
 
     def setupSignals(self) -> None:
         logger.trace("Setting main window signals")

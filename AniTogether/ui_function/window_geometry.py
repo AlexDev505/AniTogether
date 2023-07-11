@@ -7,14 +7,70 @@
 from __future__ import annotations
 
 import typing as ty
+from functools import partial
 
-from PyQt6.QtCore import QEvent, QPoint, QRect, Qt
+from PyQt6.QtCore import QRect, Qt
+from PyQt6.QtWidgets import QMainWindow, QWidget, QSizeGrip, QFrame
 from loguru import logger
 
 
 if ty.TYPE_CHECKING:
-    from PyQt6.QtWidgets import QMainWindow, QWidget
-    from PyQt6.QtGui import QMouseEvent
+    from PyQt6.QtGui import QMouseEvent, QResizeEvent
+
+
+class SideGrip(QFrame):
+    def __init__(self, parent, edge: Qt.Edge):
+        QFrame.__init__(self, parent)
+        self.setObjectName("sideGrip")
+        if edge == Qt.Edge.LeftEdge:
+            self.setCursor(Qt.CursorShape.SizeHorCursor)
+            self.resizeFunc = self.resizeLeft
+        elif edge == Qt.Edge.TopEdge:
+            self.setCursor(Qt.CursorShape.SizeVerCursor)
+            self.resizeFunc = self.resizeTop
+        elif edge == Qt.Edge.RightEdge:
+            self.setCursor(Qt.CursorShape.SizeHorCursor)
+            self.resizeFunc = self.resizeRight
+        else:
+            self.setCursor(Qt.CursorShape.SizeVerCursor)
+            self.resizeFunc = self.resizeBottom
+        self.mousePos = None
+
+    def resizeLeft(self, delta):
+        window = self.window()
+        width = max(window.minimumWidth(), window.width() - delta.x())
+        geo = window.geometry()
+        geo.setLeft(geo.right() - width)
+        window.setGeometry(geo)
+
+    def resizeTop(self, delta):
+        window = self.window()
+        height = max(window.minimumHeight(), window.height() - delta.y())
+        geo = window.geometry()
+        geo.setTop(geo.bottom() - height)
+        window.setGeometry(geo)
+
+    def resizeRight(self, delta):
+        window = self.window()
+        width = max(window.minimumWidth(), window.width() + delta.x())
+        window.resize(width, window.height())
+
+    def resizeBottom(self, delta):
+        window = self.window()
+        height = max(window.minimumHeight(), window.height() + delta.y())
+        window.resize(window.width(), height)
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            self.mousePos = event.pos()
+
+    def mouseMoveEvent(self, event):
+        if self.mousePos is not None:
+            delta = event.pos() - self.mousePos
+            self.resizeFunc(delta)
+
+    def mouseReleaseEvent(self, event):
+        self.mousePos = None
 
 
 def prepareDragZone(window: QMainWindow, obj: QWidget) -> None:
@@ -81,66 +137,75 @@ def dragZoneReleaseEvent(window: QMainWindow, event: QMouseEvent) -> None:
         window.__dict__["_drag_pos"] = None
 
 
-def mouseEvent(window: QMainWindow, event: QMouseEvent) -> None:
-    """
-    Обрабатывает события мыши, для реализации изменения размера окна.
-    :param window: Экземпляр окна.
-    :param event:
-    """
-    if window.isFullScreen():
+def prepareSizeGrips(window: QMainWindow) -> None:
+    window.__setattr__("_grip_size", 8)
+    window.sideGrips = [
+        SideGrip(window, Qt.Edge.LeftEdge),
+        SideGrip(window, Qt.Edge.TopEdge),
+        SideGrip(window, Qt.Edge.RightEdge),
+        SideGrip(window, Qt.Edge.BottomEdge),
+    ]
+    window.cornerGrips = [QSizeGrip(window) for i in range(4)]
+    for grip in window.cornerGrips:
+        grip.setStyleSheet("background-color: transparent;")
+    for grip in window.sideGrips:
+        grip.setStyleSheet("background-color: transparent;")
+    window.resizeEvent = partial(resizeEvent, window)
+
+
+def setGripSize(window: QMainWindow, size: int) -> None:
+    if size == window.__getattribute__("_grip_size"):
         return
-
-    if event.type() == QEvent.Type.HoverEnter:  # Движение мыши по окну
-        if window.__dict__.get("_start_cursor_pos") is None:
-            _check_position(window, event)
-
-    if event.type() == QEvent.Type.MouseButtonPress:  # Нажатие
-        if event.button() == Qt.MouseButton.LeftButton:
-            window.__dict__["_start_cursor_pos"] = window.mapToGlobal(event.pos())
-            window.__dict__["_start_window_geometry"] = window.geometry()
-
-    elif event.type() == QEvent.Type.MouseButtonRelease:  # Отпускание
-        if event.button() == Qt.MouseButton.LeftButton:
-            window.__dict__["_start_cursor_pos"] = None
-            _check_position(window, event)
-
-    elif event.type() == QEvent.Type.MouseMove:  # Движение с зажатой кнопкой мыши
-        if window.__dict__.get("_start_cursor_pos") is not None:
-            if window.cursor().shape() in {Qt.CursorShape.SizeFDiagCursor}:
-                _resize_window(window, event)
+    window.__setattr__("_grip_size", max(2, size))
+    updateGrips(window)
 
 
-def _check_position(window: QMainWindow, event: QMouseEvent) -> None:
-    """
-    Проверяет положение мыши.
-    Устанавливает определённый курсор, при наведении на край и обратно.
-    :param window: Экземпляр окна.
-    :param event:
-    """
-    rect = window.rect()
-    bottom_right = rect.bottomRight()
+def updateGrips(window: QMainWindow) -> None:
+    grip_size = window.__getattribute__("_grip_size")
+    # window.setContentsMargins(*[grip_size] * 4)
 
-    if event.position() in QRect(
-        QPoint(bottom_right.x() - 30, bottom_right.y() - 30),
-        QPoint(bottom_right.x(), bottom_right.y()),
-    ):
-        window.setCursor(Qt.CursorShape.SizeFDiagCursor)
-    else:  # Обычный курсор
-        if window.cursor() == Qt.CursorShape.SizeFDiagCursor:
-            window.setCursor(Qt.CursorShape.ArrowCursor)
+    outRect = window.rect()
+    # an "inner" rect used for reference to set the geometries of size grips
+    inRect = outRect.adjusted(grip_size, grip_size, -grip_size, -grip_size)
+
+    # top left
+    window.__getattribute__("cornerGrips")[0].setGeometry(
+        QRect(outRect.topLeft(), inRect.topLeft())
+    )
+    # top right
+    window.__getattribute__("cornerGrips")[1].setGeometry(
+        QRect(outRect.topRight(), inRect.topRight()).normalized()
+    )
+    # bottom right
+    window.__getattribute__("cornerGrips")[2].setGeometry(
+        QRect(inRect.bottomRight(), outRect.bottomRight())
+    )
+    # bottom left
+    window.__getattribute__("cornerGrips")[3].setGeometry(
+        QRect(outRect.bottomLeft(), inRect.bottomLeft()).normalized()
+    )
+
+    # left edge
+    window.__getattribute__("sideGrips")[0].setGeometry(
+        0, inRect.top(), grip_size, inRect.height()
+    )
+    # top edge
+    window.__getattribute__("sideGrips")[1].setGeometry(
+        inRect.left(), 0, inRect.width(), grip_size
+    )
+    # right edge
+    window.__getattribute__("sideGrips")[2].setGeometry(
+        inRect.left() + inRect.width(), inRect.top(), grip_size, inRect.height()
+    )
+    # bottom edge
+    window.__getattribute__("sideGrips")[3].setGeometry(
+        grip_size, inRect.top() + inRect.height(), inRect.width(), grip_size
+    )
 
 
-def _resize_window(window: QMainWindow, event: QMouseEvent) -> None:
-    """
-    Изменяет размер окна.
-    :param window: Экземпляр окна.
-    :param event:
-    """
-    geometry = window.__dict__["_start_window_geometry"]
-    last = window.mapToGlobal(event.pos()) - window.__dict__["_start_cursor_pos"]
-    new_width = geometry.width() + last.x()
-    new_height = geometry.height() + last.y()
-    window.setGeometry(geometry.x(), geometry.y(), new_width, new_height)
+def resizeEvent(window: QMainWindow, event: QResizeEvent):
+    QMainWindow.resizeEvent(window, event)
+    updateGrips(window)
 
 
 def toggleFullScreen(window: QMainWindow) -> None:
