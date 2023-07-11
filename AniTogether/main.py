@@ -5,7 +5,6 @@ import sys
 from functools import partial
 
 import qasync
-from PyQt6.QtWidgets import QApplication
 
 
 # CONFIG SETUP
@@ -45,7 +44,7 @@ async def main():
     loop = asyncio.get_event_loop()
     future = asyncio.Future()
 
-    app = QApplication.instance()
+    app = qasync.QApplication.instance()
     if hasattr(app, "aboutToQuit"):
         getattr(app, "aboutToQuit").connect(partial(close_future, future, loop))
 

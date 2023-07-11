@@ -43,5 +43,9 @@ class AnilibriaAgent(AniLibriaClient):
                 return data
             raise PosterDownloadingFailed(response.status, "")
 
+    async def disconnect(self) -> None:
+        await self.close()
+        await self.session.close()
+
 
 __all__ = ["AnilibriaAgent"]

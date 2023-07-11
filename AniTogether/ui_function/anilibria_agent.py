@@ -27,7 +27,7 @@ class SearchQueryUpdated(Exception):
 
 async def disconnect() -> None:
     logger.debug("Disconnecting Anilibria agent")
-    await anilibria_agent.close()
+    await anilibria_agent.disconnect()
 
 
 @alru_cache(maxsize=10, ttl=10)
