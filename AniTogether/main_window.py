@@ -3,7 +3,7 @@ from __future__ import annotations
 import typing as ty
 from functools import partial
 
-from PyQt6.QtCore import Qt, QPoint
+from PyQt6.QtCore import Qt, QPoint, QTimer
 from PyQt6.QtWidgets import QMainWindow
 from qasync import asyncSlot, asyncClose
 
@@ -14,7 +14,7 @@ from ui_function import window_geometry, home_page, anilibria_agent
 
 
 if ty.TYPE_CHECKING:
-    from PyQt6.QtGui import QCloseEvent
+    from PyQt6.QtGui import QCloseEvent, QResizeEvent
     from anilibria import Title
 
 
@@ -86,7 +86,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             return
 
         self.search_result_widget = SearchResultWidget(self)
-        self.search_result_widget.setMinimumWidth(self.searchLineEdit.width())
         self.search_result_widget.show()
         for title in titles:
             title_widget = self.search_result_widget.addTitle()
@@ -102,9 +101,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             )
         pos = self.centralWidget().mapFromGlobal(
             self.searchLineEdit.mapToGlobal(QPoint(0, 0))
-        )
-        pos.setY(pos.y() + self.searchLineEdit.height() + 5)
+        )  # Получаем глобальные координаты строки поиска
+        pos.setY(pos.y() + self.searchLineEdit.height() + 5)  # Отступ 5px вниз
         self.search_result_widget.move(pos)
+        self.search_result_widget.setMinimumWidth(self.searchLineEditFrame.width())
+        self.search_result_widget.setMaximumWidth(self.width() - pos.x() * 2)
+        # Через 200 миллисекунд обновляем размер виджета,
+        # чтобы большие названия релизов скрылись
+        # (функция не срабатывает на элементах, которые еще не отображены)
+        QTimer.singleShot(
+            200,
+            partial(
+                self.search_result_widget.setWidth, self.search_result_widget.width()
+            ),
+        )
 
     def close_search_result_widget(self) -> None:
         """
@@ -113,6 +123,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if self.search_result_widget:
             self.search_result_widget.delete()
             self.search_result_widget = None
+
+    def resizeEvent(self, _: QResizeEvent) -> None:
+        if self.search_result_widget:
+            self.search_result_widget.setMinimumWidth(self.searchLineEditFrame.width())
+            self.search_result_widget.setMaximumWidth(
+                self.width() - self.search_result_widget.x() * 2
+            )  # Ограничиваем максимальный размер, чтобы не выходил за рамки окна
+            # Ширина, которая вмещает самое длинное название
+            # или растяжение до размеров строки поиска
+            width = max(
+                self.search_result_widget.max_title_widget_width,
+                self.searchLineEditFrame.width(),
+            )
+            # Меняем только если это нужно
+            if self.search_result_widget.width() != width:
+                self.search_result_widget.setWidth(width)
 
     @asyncClose
     async def closeEvent(self, event: QCloseEvent) -> None:

@@ -44,13 +44,27 @@ class TitleWidget(QtWidgets.QFrame):
         self.titleWidgetLayout.addWidget(self.titleIcon)
         self.titleWidgetLayout.addWidget(self.titleLabel)
 
+        self.original_title: str = ""
+        self.char_width = 1
+
     def setTitle(self, title: str) -> None:
         """
         Изменяет название релиза.
         :param title: Название.
         """
+        self.original_title = title
         self.titleLabel.setText(title)
         self.titleChanged.emit()
+        self.char_width = self.titleLabel.fontMetrics().boundingRect(
+            title
+        ).width() / len(title)
+
+    def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
+        allowed_chars = int(self.titleLabel.width() // self.char_width)
+        if allowed_chars < len(self.original_title):
+            self.titleLabel.setText(self.original_title[: allowed_chars - 3] + "...")
+        else:
+            self.titleLabel.setText(self.original_title)
 
 
 class SearchResultWidget(QtWidgets.QFrame):
@@ -114,10 +128,16 @@ class SearchResultWidget(QtWidgets.QFrame):
         self.scrollAreaContainerLayout.setSpacing(0)
         self.scrollArea.setWidget(self.scrollAreaContainer)
         self.scrollArea.verticalScrollBar().setSingleStep(10)
+        self.scrollArea.horizontalScrollBar().setEnabled(False)
+        self.scrollArea.setHorizontalScrollBarPolicy(
+            QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
 
         self.scrollArea.setMaximumHeight(TitleWidget.widget_height * 6)
 
         self.searchResultWidgetLayout.addWidget(self.scrollArea)
+
+        self.max_title_widget_width: int = 0
 
         QtCore.QMetaObject.connectSlotsByName(self)
 
@@ -126,27 +146,30 @@ class SearchResultWidget(QtWidgets.QFrame):
         Создает пустой виджет релиза и возвращает его.
         :return: Пустой виджет релиза.
         """
-        title_widget = TitleWidget(self.scrollAreaContainer)
-        self.scrollAreaContainerLayout.addWidget(title_widget)
-        title_widget.titleChanged.connect(partial(self._check_new_width, title_widget))
+        titleWidget = TitleWidget(self.scrollAreaContainer)
+        self.scrollAreaContainerLayout.addWidget(titleWidget)
         title_widget_height = TitleWidget.widget_height
+        titleWidget.titleChanged.connect(
+            partial(self._check_max_title_widget_width, titleWidget)
+        )
         if self.minimumHeight() + title_widget_height < self.scrollArea.maximumHeight():
             self.setMinimumHeight(self.minimumHeight() + title_widget_height)
-        return title_widget
+        return titleWidget
 
-    def _check_new_width(self, title_widget: TitleWidget) -> None:
-        title_widget.titleChanged.disconnect()
-        while (
-            title_widget.sizeHint().width() + TitleWidget.h_margin * 2
-            > self.parent().width() - 100
-        ):
-            title_widget.titleLabel.setText(title_widget.titleLabel.text()[:-4] + "...")
-        self.setMinimumWidth(
-            max(
-                self.minimumWidth(),
-                title_widget.sizeHint().width() + TitleWidget.h_margin * 2,
-            )
+    def _check_max_title_widget_width(self, titleWidget: TitleWidget) -> None:
+        self.max_title_widget_width = max(
+            self.max_title_widget_width,
+            titleWidget.sizeHint().width() + TitleWidget.h_margin * 2,
         )
+        self.setWidth(self.max_title_widget_width)
+
+    def setWidth(self, width: int) -> None:
+        rect = self.geometry()
+        rect.setWidth(width)
+        self.setGeometry(rect)
+        for titleWidget in self.scrollAreaContainer.children():
+            if type(titleWidget) is TitleWidget:
+                titleWidget.setFixedWidth(min(width, self.maximumWidth()))
 
     def delete(self) -> None:
         """

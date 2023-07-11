@@ -10,11 +10,12 @@ import typing as ty
 from functools import partial
 
 from PyQt6.QtCore import QRect, Qt
-from PyQt6.QtWidgets import QMainWindow, QWidget, QSizeGrip, QFrame
+from PyQt6.QtWidgets import QWidget, QSizeGrip, QFrame
 from loguru import logger
 
 
 if ty.TYPE_CHECKING:
+    from PyQt6.QtWidgets import QMainWindow
     from PyQt6.QtGui import QMouseEvent, QResizeEvent
 
 
@@ -158,6 +159,7 @@ def prepareSizeGrips(window: QMainWindow) -> None:
         grip.setStyleSheet("background-color: transparent;")
     for grip in window.sideGrips:
         grip.setStyleSheet("background-color: transparent;")
+    window.oldResizeEvent = window.resizeEvent
     window.resizeEvent = partial(resizeEvent, window)
 
 
@@ -210,7 +212,7 @@ def updateGrips(window: QMainWindow) -> None:
 
 
 def resizeEvent(window: QMainWindow, event: QResizeEvent):
-    QMainWindow.resizeEvent(window, event)
+    window.__getattribute__("oldResizeEvent")(event)
     updateGrips(window)
 
 
