@@ -7,10 +7,15 @@ from .exceptions import CantFindAnilibriaMirror, PosterDownloadingFailed
 
 
 class AnilibriaAgent(AniLibriaClient):
+    """
+    Агент для взаимодействия с анилибрией.
+    """
+
     def __init__(self):
         super().__init__()
 
         self.session: ClientSession = ...
+        # URl на зеркало анилибрии
         self.anilibria_mirror: str | None = None
 
     async def create_session(self) -> ClientSession:
@@ -20,6 +25,11 @@ class AnilibriaAgent(AniLibriaClient):
         return self.session
 
     async def find_anilibria_mirror(self) -> str:
+        """
+        Ищет доступное зеркало анилибрии.
+        Парсинг с darklibria.it
+        :return: URL.
+        """
         await self.create_session()
 
         async with self.session.get(
@@ -34,6 +44,11 @@ class AnilibriaAgent(AniLibriaClient):
             raise CantFindAnilibriaMirror(response.status, "")
 
     async def download_poster(self, poster_url: str) -> bytes:
+        """
+        Скачивает постер с сервера анилибрии.
+        :param poster_url: Ссылка на постер.
+        :return: Постер в виде bytes.
+        """
         if not self.anilibria_mirror:
             await self.find_anilibria_mirror()
 

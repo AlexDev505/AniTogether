@@ -45,6 +45,10 @@ class TitleWidget(QtWidgets.QFrame):
         self.titleWidgetLayout.addWidget(self.titleLabel)
 
     def setTitle(self, title: str) -> None:
+        """
+        Изменяет название релиза.
+        :param title: Название.
+        """
         self.titleLabel.setText(title)
         self.titleChanged.emit()
 
@@ -118,6 +122,10 @@ class SearchResultWidget(QtWidgets.QFrame):
         QtCore.QMetaObject.connectSlotsByName(self)
 
     def addTitle(self) -> TitleWidget:
+        """
+        Создает пустой виджет релиза и возвращает его.
+        :return: Пустой виджет релиза.
+        """
         title_widget = TitleWidget(self.scrollAreaContainer)
         self.scrollAreaContainerLayout.addWidget(title_widget)
         title_widget.titleChanged.connect(partial(self._check_new_width, title_widget))
@@ -140,6 +148,9 @@ class SearchResultWidget(QtWidgets.QFrame):
             )
         )
 
-    def delete(self):
+    def delete(self) -> None:
+        """
+        Удаляет виджет.
+        """
         self.hide()
         self.deleteLater()

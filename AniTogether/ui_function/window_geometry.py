@@ -18,61 +18,6 @@ if ty.TYPE_CHECKING:
     from PyQt6.QtGui import QMouseEvent, QResizeEvent
 
 
-class SideGrip(QFrame):
-    def __init__(self, parent, edge: Qt.Edge):
-        QFrame.__init__(self, parent)
-        self.setObjectName("sideGrip")
-        if edge == Qt.Edge.LeftEdge:
-            self.setCursor(Qt.CursorShape.SizeHorCursor)
-            self.resizeFunc = self.resizeLeft
-        elif edge == Qt.Edge.TopEdge:
-            self.setCursor(Qt.CursorShape.SizeVerCursor)
-            self.resizeFunc = self.resizeTop
-        elif edge == Qt.Edge.RightEdge:
-            self.setCursor(Qt.CursorShape.SizeHorCursor)
-            self.resizeFunc = self.resizeRight
-        else:
-            self.setCursor(Qt.CursorShape.SizeVerCursor)
-            self.resizeFunc = self.resizeBottom
-        self.mousePos = None
-
-    def resizeLeft(self, delta):
-        window = self.window()
-        width = max(window.minimumWidth(), window.width() - delta.x())
-        geo = window.geometry()
-        geo.setLeft(geo.right() - width)
-        window.setGeometry(geo)
-
-    def resizeTop(self, delta):
-        window = self.window()
-        height = max(window.minimumHeight(), window.height() - delta.y())
-        geo = window.geometry()
-        geo.setTop(geo.bottom() - height)
-        window.setGeometry(geo)
-
-    def resizeRight(self, delta):
-        window = self.window()
-        width = max(window.minimumWidth(), window.width() + delta.x())
-        window.resize(width, window.height())
-
-    def resizeBottom(self, delta):
-        window = self.window()
-        height = max(window.minimumHeight(), window.height() + delta.y())
-        window.resize(window.width(), height)
-
-    def mousePressEvent(self, event):
-        if event.button() == Qt.MouseButton.LeftButton:
-            self.mousePos = event.pos()
-
-    def mouseMoveEvent(self, event):
-        if self.mousePos is not None:
-            delta = event.pos() - self.mousePos
-            self.resizeFunc(delta)
-
-    def mouseReleaseEvent(self, event):
-        self.mousePos = None
-
-
 def prepareDragZone(window: QMainWindow, obj: QWidget) -> None:
     """
     Подготавливает виджет, отвечающий за перемещение окна.
@@ -137,6 +82,69 @@ def dragZoneReleaseEvent(window: QMainWindow, event: QMouseEvent) -> None:
         window.__dict__["_drag_pos"] = None
 
 
+class SideGrip(QFrame):
+    """
+    Боковые области, для изменения размеров окна.
+    """
+
+    def __init__(self, parent: QMainWindow, edge: Qt.Edge):
+        """
+        :param parent: Главное окно.
+        :param edge: Сторона.
+        """
+        QFrame.__init__(self, parent)
+        self.setObjectName("sideGrip")
+        if edge == Qt.Edge.LeftEdge:
+            self.setCursor(Qt.CursorShape.SizeHorCursor)
+            self.resizeFunc = self.resizeLeft
+        elif edge == Qt.Edge.TopEdge:
+            self.setCursor(Qt.CursorShape.SizeVerCursor)
+            self.resizeFunc = self.resizeTop
+        elif edge == Qt.Edge.RightEdge:
+            self.setCursor(Qt.CursorShape.SizeHorCursor)
+            self.resizeFunc = self.resizeRight
+        else:
+            self.setCursor(Qt.CursorShape.SizeVerCursor)
+            self.resizeFunc = self.resizeBottom
+        self.mouse_pos = None
+
+    def resizeLeft(self, delta):
+        window = self.window()
+        width = max(window.minimumWidth(), window.width() - delta.x())
+        geo = window.geometry()
+        geo.setLeft(geo.right() - width)
+        window.setGeometry(geo)
+
+    def resizeTop(self, delta):
+        window = self.window()
+        height = max(window.minimumHeight(), window.height() - delta.y())
+        geo = window.geometry()
+        geo.setTop(geo.bottom() - height)
+        window.setGeometry(geo)
+
+    def resizeRight(self, delta):
+        window = self.window()
+        width = max(window.minimumWidth(), window.width() + delta.x())
+        window.resize(width, window.height())
+
+    def resizeBottom(self, delta):
+        window = self.window()
+        height = max(window.minimumHeight(), window.height() + delta.y())
+        window.resize(window.width(), height)
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            self.mouse_pos = event.pos()
+
+    def mouseMoveEvent(self, event):
+        if self.mouse_pos is not None:
+            delta = event.pos() - self.mouse_pos
+            self.resizeFunc(delta)
+
+    def mouseReleaseEvent(self, event):
+        self.mouse_pos = None
+
+
 def prepareSizeGrips(window: QMainWindow) -> None:
     window.__setattr__("_grip_size", 8)
     window.sideGrips = [
@@ -162,10 +170,8 @@ def setGripSize(window: QMainWindow, size: int) -> None:
 
 def updateGrips(window: QMainWindow) -> None:
     grip_size = window.__getattribute__("_grip_size")
-    # window.setContentsMargins(*[grip_size] * 4)
 
     outRect = window.rect()
-    # an "inner" rect used for reference to set the geometries of size grips
     inRect = outRect.adjusted(grip_size, grip_size, -grip_size, -grip_size)
 
     # top left

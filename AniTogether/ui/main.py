@@ -23,6 +23,11 @@ class Ui_MainWindow(object):
             "    border: none;\n"
             "}\n"
             "\n"
+            "/* STACKED WIDGET */\n"
+            "QStackedWidget > QWidget {\n"
+            "    background: transparent;\n"
+            "}\n"
+            "\n"
             "/* SCROLL AREA */\n"
             "QScrollArea, QScrollArea > QWidget > QWidget {\n"
             "    background: transparent;\n"
@@ -192,10 +197,18 @@ class Ui_MainWindow(object):
         self.centralFrame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.centralFrame.setObjectName("centralFrame")
         self.centralFrameLayout = QtWidgets.QVBoxLayout(self.centralFrame)
-        self.centralFrameLayout.setContentsMargins(50, 30, 50, 0)
+        self.centralFrameLayout.setContentsMargins(0, 0, 0, 0)
         self.centralFrameLayout.setSpacing(0)
         self.centralFrameLayout.setObjectName("centralFrameLayout")
-        self.scrollArea = QtWidgets.QScrollArea(parent=self.centralFrame)
+        self.stackedWidget = QtWidgets.QStackedWidget(parent=self.centralFrame)
+        self.stackedWidget.setObjectName("stackedWidget")
+        self.homePage = QtWidgets.QWidget()
+        self.homePage.setObjectName("homePage")
+        self.verticalLayout = QtWidgets.QVBoxLayout(self.homePage)
+        self.verticalLayout.setContentsMargins(50, 30, 50, 0)
+        self.verticalLayout.setSpacing(0)
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.scrollArea = QtWidgets.QScrollArea(parent=self.homePage)
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaContainer = QtWidgets.QWidget()
@@ -417,7 +430,12 @@ class Ui_MainWindow(object):
         self.historyFrameLayout.addWidget(self.label_3)
         self.scrollAreaContainerLayout.addWidget(self.historyFrame)
         self.scrollArea.setWidget(self.scrollAreaContainer)
-        self.centralFrameLayout.addWidget(self.scrollArea)
+        self.verticalLayout.addWidget(self.scrollArea)
+        self.stackedWidget.addWidget(self.homePage)
+        self.playerPage = QtWidgets.QWidget()
+        self.playerPage.setObjectName("playerPage")
+        self.stackedWidget.addWidget(self.playerPage)
+        self.centralFrameLayout.addWidget(self.stackedWidget)
         self.centralWidgetLayout.addWidget(self.centralFrame)
         MainWindow.setCentralWidget(self.centralwidget)
 

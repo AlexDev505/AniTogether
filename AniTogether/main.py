@@ -23,6 +23,9 @@ from logger import logger  # noqa
 from main_window import MainWindow  # noqa
 
 
+# Настройка обработчика ошибок
+
+
 @logger.catch
 def exception_hook(exception_type, value, __):
     if exception_type is KeyboardInterrupt:
