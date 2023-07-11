@@ -4,16 +4,31 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 
 
 class TitleWidget(QtWidgets.QFrame):
+    h_margin = 20
+    v_margin = 6
+    spacing = 15
+    icon_size = 40
+
+    widget_height = icon_size + v_margin * 2
+
     titleChanged = QtCore.pyqtSignal()
 
     def __init__(self, parent):
         super().__init__(parent)
 
+        self.setObjectName("titleWidget")
+
         self.titleWidgetLayout = QtWidgets.QHBoxLayout(self)
-        self.titleWidgetLayout.setContentsMargins(10, 4, 10, 4)
-        self.titleWidgetLayout.setSpacing(10)
+        self.titleWidgetLayout.setContentsMargins(
+            TitleWidget.h_margin,
+            TitleWidget.v_margin,
+            TitleWidget.h_margin,
+            TitleWidget.v_margin,
+        )
+        self.titleWidgetLayout.setSpacing(TitleWidget.spacing)
         self.titleIcon = QtWidgets.QLabel(self)
-        self.titleIcon.setMinimumSize(50, 50)
+        self.titleIcon.setObjectName("titleIcon")
+        self.titleIcon.setMinimumSize(TitleWidget.icon_size, TitleWidget.icon_size)
         self.titleLabel = QtWidgets.QLabel(self)
         self.titleLabel.setSizePolicy(
             QtWidgets.QSizePolicy(
@@ -48,8 +63,12 @@ class SearchResultWidget(QtWidgets.QFrame):
             background-color: transparent;
             color: rgb(255,255,255);
         }
-        QFrame QWidget QFrame:hover {
+        #titleWidget:hover {
             background-color: rgb(48,48,48);
+        }
+        #titleWidget #titleIcon {
+            background-color: rgb(37,37,37);
+            border-radius: 20px;
         }
         /*SCROLLBAR */
         /* VERTICAL SCROLLBAR */
@@ -80,8 +99,6 @@ class SearchResultWidget(QtWidgets.QFrame):
         """
         )
 
-        self.setMaximumHeight(330)
-
         self.searchResultWidgetLayout = QtWidgets.QVBoxLayout(self)
         self.searchResultWidgetLayout.setContentsMargins(0, 0, 0, 0)
 
@@ -94,7 +111,7 @@ class SearchResultWidget(QtWidgets.QFrame):
         self.scrollArea.setWidget(self.scrollAreaContainer)
         self.scrollArea.verticalScrollBar().setSingleStep(10)
 
-        self.scrollArea.setMaximumHeight(330)
+        self.scrollArea.setMaximumHeight(TitleWidget.widget_height * 6)
 
         self.searchResultWidgetLayout.addWidget(self.scrollArea)
 
@@ -104,17 +121,23 @@ class SearchResultWidget(QtWidgets.QFrame):
         title_widget = TitleWidget(self.scrollAreaContainer)
         self.scrollAreaContainerLayout.addWidget(title_widget)
         title_widget.titleChanged.connect(partial(self._check_new_width, title_widget))
-        title_widget_height = title_widget.sizeHint().height() + 8
-        if self.minimumHeight() + title_widget_height < 300:
+        title_widget_height = TitleWidget.widget_height
+        if self.minimumHeight() + title_widget_height < self.scrollArea.maximumHeight():
             self.setMinimumHeight(self.minimumHeight() + title_widget_height)
         return title_widget
 
     def _check_new_width(self, title_widget: TitleWidget) -> None:
         title_widget.titleChanged.disconnect()
-        while title_widget.sizeHint().width() + 20 > self.parent().width() - 100:
+        while (
+            title_widget.sizeHint().width() + TitleWidget.h_margin * 2
+            > self.parent().width() - 100
+        ):
             title_widget.titleLabel.setText(title_widget.titleLabel.text()[:-4] + "...")
         self.setMinimumWidth(
-            max(self.minimumWidth(), title_widget.sizeHint().width() + 20)
+            max(
+                self.minimumWidth(),
+                title_widget.sizeHint().width() + TitleWidget.h_margin * 2,
+            )
         )
 
     def delete(self):

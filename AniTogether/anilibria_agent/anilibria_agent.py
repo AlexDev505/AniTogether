@@ -3,6 +3,8 @@ import re
 from aiohttp import ClientSession
 from anilibria import AniLibriaClient
 
+from .exceptions import CantFindAnilibriaMirror, PosterDownloadingFailed
+
 
 class AnilibriaAgent(AniLibriaClient):
     def __init__(self):
@@ -28,7 +30,8 @@ class AnilibriaAgent(AniLibriaClient):
                 if match := re.search(r'<link rel="canonical" href="(.+)"/>', data):
                     self.anilibria_mirror = match.group(1)
                     return self.anilibria_mirror
-            raise RuntimeError("Не удалось получить зеркало анилибрии")
+                raise CantFindAnilibriaMirror(response.status, "Mirror link not found")
+            raise CantFindAnilibriaMirror(response.status, "")
 
     async def download_poster(self, poster_url: str) -> bytes:
         if not self.anilibria_mirror:
@@ -38,7 +41,7 @@ class AnilibriaAgent(AniLibriaClient):
             if response.status == 200:
                 data = await response.read()
                 return data
-            raise RuntimeError("Не удалось получить постер")
+            raise PosterDownloadingFailed(response.status, "")
 
 
 __all__ = ["AnilibriaAgent"]

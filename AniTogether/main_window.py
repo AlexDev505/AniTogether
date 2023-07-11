@@ -57,7 +57,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     @asyncSlot()
     async def search_titles(self) -> None:
         query = self.searchLineEdit.text()
-        if len(query) < 3:
+        if len(query) == 0:
+            return self.close_search_result_widget()
+        elif len(query) < 3:
             return
 
         if not self.searchLineEditStatusLabel.movie():
@@ -74,25 +76,36 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.searchLineEditStatusLabel.clear()
 
+        self.close_search_result_widget()
+
         if not len(titles):
-            if self.search_result_widget:
-                self.search_result_widget.delete()
-                self.search_result_widget = None
             return
 
-        if self.search_result_widget:
-            self.search_result_widget.delete()
-
         self.search_result_widget = SearchResultWidget(self)
+        self.search_result_widget.setMinimumWidth(self.searchLineEdit.width())
         self.search_result_widget.show()
         for title in titles:
             title_widget = self.search_result_widget.addTitle()
             title_widget.setTitle(title.names.ru)
+            anilibria_agent.start_loading_poster(
+                title_widget.titleIcon,
+                title_widget.titleIcon.minimumHeight(),
+                (
+                    title.posters.small
+                    or title.posters.medium
+                    or title.posters.original
+                ).url,
+            )
         pos = self.centralWidget().mapFromGlobal(
             self.searchLineEdit.mapToGlobal(QPoint(0, 0))
         )
         pos.setY(pos.y() + self.searchLineEdit.height() + 5)
         self.search_result_widget.move(pos)
+
+    def close_search_result_widget(self) -> None:
+        if self.search_result_widget:
+            self.search_result_widget.delete()
+            self.search_result_widget = None
 
     @asyncClose
     async def closeEvent(self, event: QCloseEvent) -> None:
