@@ -3,23 +3,27 @@ from __future__ import annotations
 import typing as ty
 from functools import partial
 
-from PyQt6.QtCore import Qt, QPoint, QTimer, QChildEvent
+from PyQt6.QtCore import Qt, QPoint, QTimer, pyqtSignal
 from PyQt6.QtWidgets import QMainWindow
 from qasync import asyncSlot, asyncClose
 
+from anilibria_agent import AnilibriaAgent
 from logger import logger
 from tools import create_loading_movie, debug_title_data, trace_title_data
 from ui import Ui_MainWindow
-from ui_function import window_geometry, home_page, anilibria_agent
+from ui_function import window_geometry, home_page, player_page
 from widgets import SearchResultWidget, PlayerControlsWidget
 
 
 if ty.TYPE_CHECKING:
-    from PyQt6.QtGui import QCloseEvent, QResizeEvent
-    from anilibria import Title
+    from PyQt6 import QtCore, QtGui
+    from anilibria import Title, Episode
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
+    # Страница плеера открыта
+    playerPageIsOpen: QtCore.pyqtBoundSignal = pyqtSignal()
+
     def __init__(self):
         logger.trace("Initialization of the main window")
         super().__init__()
@@ -36,6 +40,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.searchResultWidget: SearchResultWidget | None = None
         self.current_title: Title | None = None
+        self.current_episode_number: int = 0
+        self.current_episode: Episode | None = None
         self.playerControlsWidget: PlayerControlsWidget | None = None
 
         self.setupSignals()
@@ -44,7 +50,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         window_geometry.prepareDragZone(self, self.topFrame)
         # Подготавливаем области, отвечающие за изменение размеров окна
         window_geometry.prepareSizeGrips(self)
-        self.installEventFilter(self)
 
     def setupSignals(self) -> None:
         logger.trace("Setting main window signals")
@@ -62,25 +67,41 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             home_page.searchLineEditFocusOutEvent, self
         )
 
+        self.playerPageIsOpen.connect(partial(player_page.playerPageIsOpen, self))
+
     def openHomePage(self) -> None:
         logger.debug("Opening the home page")
         self.stackedWidget.setCurrentWidget(self.homePage)
         logger.debug("Home page is open")
 
-    def openPlayerPage(self, title: Title) -> None:
+    def openPlayerPage(self, title: Title, episode_number: int = 1) -> None:
         logger.debug("Opening the player page")
         logger.opt(colors=True).debug(debug_title_data(title))
         logger.opt(colors=True).trace(trace_title_data(title))
 
         self.current_title = title
+        self.current_episode_number = episode_number
+        episodes = title.player.list
+        # Серии могут храниться в списке или в словаре
+        self.current_episode = (
+            episodes[episode_number - 1]
+            if isinstance(episodes, list)
+            else episodes[str(episode_number)]
+        )
 
         if not self.playerControlsWidget:
             self.playerControlsWidget = PlayerControlsWidget(self)
+            self.playerControlsWidget.homeBtn.clicked.connect(
+                partial(player_page.leavePlayerPage, self)
+            )
         self.playerControlsWidget.show()
-        # self.chi
         self.playerControlsWidget.updateGometry()
 
+        self.playerControlsWidget.titleLabel.setText(title.names.ru)
+        self.playerControlsWidget.episodeNumberLabel.setText(f"{episode_number} серия")
+
         self.stackedWidget.setCurrentWidget(self.playerPage)
+        self.playerPageIsOpen.emit()
         logger.debug("Player page is open")
 
     @asyncSlot()
@@ -97,13 +118,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.searchLineEditStatusLabel.setMinimumSize(movie.scaledSize())
 
         try:
-            titles: list[Title] = await anilibria_agent.search_titles(
+            titles: list[Title] = await home_page.search_titles(
                 query, self.searchLineEdit
             )
-        except anilibria_agent.SearchQueryUpdated:
+        except home_page.SearchQueryUpdated:
             return
 
         self.searchLineEditStatusLabel.clear()
+        if self.stackedWidget.currentWidget() != self.homePage:
+            return
 
         self.closeSearchResultWidget()
 
@@ -119,7 +142,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 home_page.titleWidgetMouseEvent, self, title
             )
             foundTitleWidget.setTitle(title.names.ru)
-            anilibria_agent.start_loading_poster(
+            home_page.start_loading_poster(
                 foundTitleWidget.titleIcon,
                 foundTitleWidget.titleIcon.minimumHeight(),
                 (
@@ -151,7 +174,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.searchResultWidget.delete()
             self.searchResultWidget = None
 
-    def resizeEvent(self, _: QResizeEvent) -> None:
+    def resizeEvent(self, _: QtGui.QResizeEvent) -> None:
         if self.searchResultWidget:
             self.searchResultWidget.setMinimumWidth(self.searchLineEditFrame.width())
             self.searchResultWidget.setMaximumWidth(
@@ -170,15 +193,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if self.playerControlsWidget:
                 self.playerControlsWidget.updateGometry()
 
-    def eventFilter(self, obj, event) -> bool:
-        if isinstance(event, QChildEvent):
-            pass
-
-        return super(MainWindow, self).eventFilter(obj, event)
-
     @asyncClose
-    async def closeEvent(self, event: QCloseEvent) -> None:
+    async def closeEvent(self, event: QtGui.QCloseEvent) -> None:
         """
         Обработчик события закрытия приложения.
         """
-        await anilibria_agent.disconnect()
+        await AnilibriaAgent.disconnect()

@@ -439,8 +439,11 @@ class Ui_MainWindow(object):
         self.stackedWidget.addWidget(self.homePage)
         self.playerPage = QtWidgets.QWidget()
         self.playerPage.setObjectName("playerPage")
+        self.verticalLayout = QtWidgets.QVBoxLayout(self.playerPage)
+        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout.setSpacing(0)
+        self.verticalLayout.setObjectName("verticalLayout")
         self.previewLabel = QtWidgets.QLabel(parent=self.playerPage)
-        self.previewLabel.setGeometry(QtCore.QRect(0, 0, 16, 16))
         sizePolicy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Policy.Expanding,
             QtWidgets.QSizePolicy.Policy.Expanding,
@@ -451,6 +454,7 @@ class Ui_MainWindow(object):
         self.previewLabel.setSizePolicy(sizePolicy)
         self.previewLabel.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.previewLabel.setObjectName("previewLabel")
+        self.verticalLayout.addWidget(self.previewLabel)
         self.stackedWidget.addWidget(self.playerPage)
         self.centralFrameLayout.addWidget(self.stackedWidget)
         self.centralWidgetLayout.addWidget(self.centralFrame)

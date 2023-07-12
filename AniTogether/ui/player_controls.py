@@ -16,7 +16,7 @@ class Ui_PlayerControls(object):
         PlayerControls.setMinimumSize(QtCore.QSize(0, 224))
         PlayerControls.setMaximumSize(QtCore.QSize(16777215, 224))
         PlayerControls.setStyleSheet(
-            "QFrame {\n"
+            "#PlayerControls {\n"
             "    background-color: qlineargradient(\n"
             "        spread:pad, \n"
             "        x1:0.5, y1:1, x2:0.5, y2:0, \n"
@@ -33,10 +33,10 @@ class Ui_PlayerControls(object):
             "    border-radius: 25px;\n"
             "}\n"
             "QPushButton:hover {\n"
-            "    background-color: rgba(20, 20, 20, 150);\n"
+            "    background-color: rgba(110,110,110,50);\n"
             "}\n"
             "QPushButton:pressed {\n"
-            "    background-color: rgba(110,110,110,150);\n"
+            "    background-color: rgba(180,180,180,50);\n"
             "}\n"
             "#playBtn {\n"
             "    border-radius: 40px;\n"
@@ -53,24 +53,27 @@ class Ui_PlayerControls(object):
             "}\n"
             "QSlider::sub-page:horizontal {\n"
             "    background: white;\n"
-            "    margin:8px;\n"
+            "    margin-top:9px;\n"
+            "    margin-bottom:9px;\n"
             "    height: 2px;\n"
             "}\n"
             "QSlider::add-page:horizontal {\n"
-            "    background: rgba(20, 20, 20, 150);\n"
-            "    margin:8px;\n"
+            "    background: rgba(180,180,180,50);\n"
+            "    margin-top:9px;\n"
+            "    margin-bottom:9px;\n"
             "    height: 2px;\n"
             "}\n"
             "QSlider::handle:horizontal {\n"
             "    background: white;\n"
-            "    border: 0px;\n"
             "    height: 14px;\n"
             "    width:14px;\n"
-            "    margin: 3px;\n"
+            "    margin-top:3px;\n"
+            "    margin-bottom:3px;\n"
             "    border-radius: 7px;\n"
             "}\n"
             "QSlider::handle:horizontal:hover {\n"
-            "    margin: 1px;\n"
+            "    margin-top:1px;\n"
+            "    margin-bottom:1px;\n"
             "    width: 18px;\n"
             "    border-radius: 9px;\n"
             "}\n"
@@ -284,7 +287,4 @@ class Ui_PlayerControls(object):
         QtCore.QMetaObject.connectSlotsByName(PlayerControls)
 
     def retranslateUi(self, PlayerControls):
-        _translate = QtCore.QCoreApplication.translate
-        self.titleLabel.setText(_translate("PlayerControls", "title"))
-        self.episodeNumberLabel.setText(_translate("PlayerControls", "episode"))
-        self.playbackLabel.setText(_translate("PlayerControls", "playback"))
+        pass

@@ -1,15 +1,21 @@
+from __future__ import annotations
+
 import re
 
 from aiohttp import ClientSession
 from anilibria import AniLibriaClient
+from async_lru import alru_cache
+from loguru import logger
 
-from .exceptions import CantFindAnilibriaMirror, PosterDownloadingFailed
+from .exceptions import CantFindAnilibriaMirror, ResourceDownloadingFailed
 
 
 class AnilibriaAgent(AniLibriaClient):
     """
     Агент для взаимодействия с анилибрией.
     """
+
+    _instance: AnilibriaAgent | None = None
 
     def __init__(self):
         super().__init__()
@@ -43,25 +49,39 @@ class AnilibriaAgent(AniLibriaClient):
                 raise CantFindAnilibriaMirror(response.status, "Mirror link not found")
             raise CantFindAnilibriaMirror(response.status, "")
 
-    async def download_poster(self, poster_url: str) -> bytes:
+    @alru_cache(maxsize=30, ttl=120)
+    async def download_resource(self, url: str) -> bytes:
         """
-        Скачивает постер с сервера анилибрии.
-        :param poster_url: Ссылка на постер.
+        Скачивает файл с сервера анилибрии.
+        Использует кэширование: хранит 30 последних запросов в течение 2 минут.
+        :param url: Ссылка на файл.
         :return: Постер в виде bytes.
         """
+        logger.opt(colors=True).trace(f"Downloading resource: <y>{url}</y>")
         if not self.anilibria_mirror:
             await self.find_anilibria_mirror()
 
-        async with self.session.get(self.anilibria_mirror + poster_url) as response:
+        async with self.session.get(self.anilibria_mirror + url) as response:
             if response.status == 200:
                 data = await response.read()
                 return data
-            raise PosterDownloadingFailed(response.status, "")
+            raise ResourceDownloadingFailed(response.status, "")
 
-    async def disconnect(self) -> None:
-        await self.close()
-        if self.session is not ...:
-            await self.session.close()
+    @classmethod
+    async def disconnect(cls) -> None:
+        if cls._instance:
+            logger.debug("Disconnecting anilibria agent")
+            await cls._instance.close()
+            logger.debug("Anilibria WS and original HTTPS disconnected")
+            if cls._instance.session is not ...:
+                await cls._instance.session.close()
+                logger.debug("Anilibria mirror HTTPS disconnected")
+
+    @classmethod
+    def get(cls) -> AnilibriaAgent:
+        if not cls._instance:
+            cls._instance = AnilibriaAgent()
+        return cls._instance
 
 
 __all__ = ["AnilibriaAgent"]

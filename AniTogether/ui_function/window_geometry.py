@@ -147,6 +147,13 @@ class SideGrip(QFrame):
         self.mouse_pos = None
 
 
+def iterGrips(window: QMainWindow) -> ty.Generator[SideGrip | QSizeGrip]:
+    for grip in window.__getattribute__("cornerGrips"):
+        yield grip
+    for grip in window.__getattribute__("sideGrips"):
+        yield grip
+
+
 def prepareSizeGrips(window: QMainWindow) -> None:
     window.__setattr__("_grip_size", 8)
     window.sideGrips = [
@@ -156,9 +163,7 @@ def prepareSizeGrips(window: QMainWindow) -> None:
         SideGrip(window, Qt.Edge.BottomEdge),
     ]
     window.cornerGrips = [QSizeGrip(window) for i in range(4)]
-    for grip in window.cornerGrips:
-        grip.setStyleSheet("background-color: transparent;")
-    for grip in window.sideGrips:
+    for grip in iterGrips(window):
         grip.setStyleSheet("background-color: transparent;")
     window.originalResizeEvent = window.resizeEvent
     window.resizeEvent = partial(resizeEvent, window)
@@ -215,15 +220,21 @@ def updateGrips(window: QMainWindow) -> None:
     )
 
 
+def toggleGrips(window: QMainWindow, value: bool) -> None:
+    for grip in iterGrips(window):
+        if value:
+            grip.show()
+        else:
+            grip.hide()
+
+
 def eventFilter(window: QMainWindow, obj: QObject, event: QEvent) -> bool:
     if (
         isinstance(event, QChildEvent)
         and event.added()
         and event.child().isWidgetType()
     ):
-        for grip in window.__getattribute__("cornerGrips"):
-            grip.raise_()
-        for grip in window.__getattribute__("sideGrips"):
+        for grip in iterGrips(window):
             grip.raise_()
         logger.opt(colors=True).trace(
             f"Grips are updated. Added: {event.child().objectName()}"
@@ -245,8 +256,8 @@ def toggleFullScreen(window: QMainWindow) -> None:
     if not window.isFullScreen():
         logger.debug("Switch to full screen mode")
         window.showFullScreen()
-        # window.resizeWidgetFrame.hide()
+        toggleGrips(window, False)
     else:
         logger.debug("Exit full screen mode")
         window.showNormal()
-        # window.resizeWidgetFrame.show()
+        toggleGrips(window, True)

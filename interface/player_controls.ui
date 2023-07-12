@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="styleSheet">
-   <string notr="true">QFrame {
+   <string notr="true">#PlayerControls {
 	background-color: qlineargradient(
 		spread:pad, 
 		x1:0.5, y1:1, x2:0.5, y2:0, 
@@ -40,10 +40,10 @@ QPushButton {
 	border-radius: 25px;
 }
 QPushButton:hover {
-	background-color: rgba(20, 20, 20, 150);
+	background-color: rgba(110,110,110,50);
 }
 QPushButton:pressed {
-    background-color: rgba(110,110,110,150);
+    background-color: rgba(180,180,180,50);
 }
 #playBtn {
 	border-radius: 40px;
@@ -60,24 +60,27 @@ QSlider::groove:horizontal {
 }
 QSlider::sub-page:horizontal {
     background: white;
-	margin:8px;
+	margin-top:9px;
+	margin-bottom:9px;
     height: 2px;
 }
 QSlider::add-page:horizontal {
-    background: rgba(20, 20, 20, 150);
-	margin:8px;
+    background: rgba(180,180,180,50);
+	margin-top:9px;
+	margin-bottom:9px;
     height: 2px;
 }
 QSlider::handle:horizontal {
     background: white;
-    border: 0px;
     height: 14px;
 	width:14px;
-	margin: 3px;
+	margin-top:3px;
+	margin-bottom:3px;
     border-radius: 7px;
 }
 QSlider::handle:horizontal:hover {
-	margin: 1px;
+	margin-top:1px;
+	margin-bottom:1px;
 	width: 18px;
     border-radius: 9px;
 }
@@ -135,9 +138,6 @@ QSlider::handle:horizontal:pressed {
           <bold>true</bold>
          </font>
         </property>
-        <property name="text">
-         <string>title</string>
-        </property>
        </widget>
       </item>
       <item>
@@ -160,9 +160,6 @@ QSlider::handle:horizontal:pressed {
             <bold>true</bold>
            </font>
           </property>
-          <property name="text">
-           <string>episode</string>
-          </property>
          </widget>
         </item>
         <item>
@@ -178,9 +175,6 @@ QSlider::handle:horizontal:pressed {
             <pointsize>12</pointsize>
             <bold>true</bold>
            </font>
-          </property>
-          <property name="text">
-           <string>playback</string>
           </property>
          </widget>
         </item>

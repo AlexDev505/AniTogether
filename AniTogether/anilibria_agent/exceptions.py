@@ -9,5 +9,5 @@ class CantFindAnilibriaMirror(AnilibriaAgentException):
     pass
 
 
-class PosterDownloadingFailed(AnilibriaAgentException):
+class ResourceDownloadingFailed(AnilibriaAgentException):
     pass
