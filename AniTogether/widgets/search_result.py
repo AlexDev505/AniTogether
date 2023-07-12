@@ -10,8 +10,9 @@ class SearchResultWidget(QFrame, Ui_SearchResult):
     ITEMS_PER_PAGE = 5
 
     def __init__(self, parent):
-        super().__init__(parent)
+        super().__init__()
         self.setupUi(self)
+        self.setParent(parent)
 
         self.scrollArea.verticalScrollBar().setSingleStep(10)
 

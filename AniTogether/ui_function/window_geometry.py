@@ -9,12 +9,13 @@ from __future__ import annotations
 import typing as ty
 from functools import partial
 
-from PyQt6.QtCore import QRect, Qt
+from PyQt6.QtCore import QRect, Qt, QChildEvent
 from PyQt6.QtWidgets import QWidget, QSizeGrip, QFrame
 from loguru import logger
 
 
 if ty.TYPE_CHECKING:
+    from PyQt6.QtCore import QObject, QEvent
     from PyQt6.QtWidgets import QMainWindow
     from PyQt6.QtGui import QMouseEvent, QResizeEvent
 
@@ -159,8 +160,11 @@ def prepareSizeGrips(window: QMainWindow) -> None:
         grip.setStyleSheet("background-color: transparent;")
     for grip in window.sideGrips:
         grip.setStyleSheet("background-color: transparent;")
-    window.oldResizeEvent = window.resizeEvent
+    window.originalResizeEvent = window.resizeEvent
     window.resizeEvent = partial(resizeEvent, window)
+    window.originalEventFilter = window.eventFilter
+    window.eventFilter = partial(eventFilter, window)
+    window.installEventFilter(window)
 
 
 def setGripSize(window: QMainWindow, size: int) -> None:
@@ -211,8 +215,25 @@ def updateGrips(window: QMainWindow) -> None:
     )
 
 
+def eventFilter(window: QMainWindow, obj: QObject, event: QEvent) -> bool:
+    if (
+        isinstance(event, QChildEvent)
+        and event.added()
+        and event.child().isWidgetType()
+    ):
+        for grip in window.__getattribute__("cornerGrips"):
+            grip.raise_()
+        for grip in window.__getattribute__("sideGrips"):
+            grip.raise_()
+        logger.opt(colors=True).trace(
+            f"Grips are updated. Added: {event.child().objectName()}"
+        )
+
+    return window.__getattribute__("originalEventFilter")(obj, event)
+
+
 def resizeEvent(window: QMainWindow, event: QResizeEvent):
-    window.__getattribute__("oldResizeEvent")(event)
+    window.__getattribute__("originalResizeEvent")(event)
     updateGrips(window)
 
 

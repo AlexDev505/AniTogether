@@ -3,7 +3,7 @@ from __future__ import annotations
 import typing as ty
 from functools import partial
 
-from PyQt6.QtCore import Qt, QPoint, QTimer
+from PyQt6.QtCore import Qt, QPoint, QTimer, QChildEvent
 from PyQt6.QtWidgets import QMainWindow
 from qasync import asyncSlot, asyncClose
 
@@ -11,7 +11,7 @@ from logger import logger
 from tools import create_loading_movie, debug_title_data, trace_title_data
 from ui import Ui_MainWindow
 from ui_function import window_geometry, home_page, anilibria_agent
-from widgets import SearchResultWidget
+from widgets import SearchResultWidget, PlayerControlsWidget
 
 
 if ty.TYPE_CHECKING:
@@ -36,7 +36,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.searchResultWidget: SearchResultWidget | None = None
         self.current_title: Title | None = None
-        # self.playerControlsWidget: Ui_PlayerControlsWidget | None = None
+        self.playerControlsWidget: PlayerControlsWidget | None = None
 
         self.setupSignals()
 
@@ -44,6 +44,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         window_geometry.prepareDragZone(self, self.topFrame)
         # Подготавливаем области, отвечающие за изменение размеров окна
         window_geometry.prepareSizeGrips(self)
+        self.installEventFilter(self)
 
     def setupSignals(self) -> None:
         logger.trace("Setting main window signals")
@@ -72,6 +73,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         logger.opt(colors=True).trace(trace_title_data(title))
 
         self.current_title = title
+
+        if not self.playerControlsWidget:
+            self.playerControlsWidget = PlayerControlsWidget(self)
+        self.playerControlsWidget.show()
+        # self.chi
+        self.playerControlsWidget.updateGometry()
 
         self.stackedWidget.setCurrentWidget(self.playerPage)
         logger.debug("Player page is open")
@@ -159,6 +166,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             # Меняем только если это нужно
             if self.searchResultWidget.width() != width:
                 self.searchResultWidget.setWidth(width)
+        if self.stackedWidget.currentWidget() == self.playerPage:
+            if self.playerControlsWidget:
+                self.playerControlsWidget.updateGometry()
+
+    def eventFilter(self, obj, event) -> bool:
+        if isinstance(event, QChildEvent):
+            pass
+
+        return super(MainWindow, self).eventFilter(obj, event)
 
     @asyncClose
     async def closeEvent(self, event: QCloseEvent) -> None:

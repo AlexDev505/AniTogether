@@ -60,7 +60,8 @@ class AnilibriaAgent(AniLibriaClient):
 
     async def disconnect(self) -> None:
         await self.close()
-        await self.session.close()
+        if self.session is not ...:
+            await self.session.close()
 
 
 __all__ = ["AnilibriaAgent"]
