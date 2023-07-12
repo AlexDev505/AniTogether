@@ -1,5 +1,16 @@
 <RCC>
   <qresource prefix="base">
+    <file>resolution_fhd.svg</file>
+    <file>resolution_hd.svg</file>
+    <file>resolution_sd.svg</file>
+    <file>playlist.svg</file>
+    <file>volume_hidht.svg</file>
+    <file>volume_low.svg</file>
+    <file>volume_medium.svg</file>
+    <file>volume_muted.svg</file>
+    <file>play.svg</file>
+    <file>fullscreen.svg</file>
+    <file>home.svg</file>
     <file>loading.gif</file>
     <file>go.svg</file>
     <file>crown.svg</file>

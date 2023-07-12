@@ -12,7 +12,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(954, 640)
+        MainWindow.resize(1000, 650)
         self.centralwidget = QtWidgets.QWidget(parent=MainWindow)
         self.centralwidget.setStyleSheet(
             "QWidget {\n"
@@ -70,7 +70,7 @@ class Ui_MainWindow(object):
             "    color: rgb(158,158,148);\n"
             "}\n"
             "\n"
-            "/* CENTRAL FRAME */\n"
+            "/* HOME PAGE */\n"
             "#centralFrame {\n"
             "    background-color: rgb(18,18,18);\n"
             "}\n"
@@ -89,6 +89,11 @@ class Ui_MainWindow(object):
             "    border-bottom-right-radius: 3px;\n"
             "}\n"
             "\n"
+            "\n"
+            "/* PLAYER PAGE */\n"
+            "#playerPage {\n"
+            "    background-color: rgb(0,0,0);\n"
+            "}\n"
             "\n"
             "\n"
             ""
@@ -204,15 +209,15 @@ class Ui_MainWindow(object):
         self.stackedWidget.setObjectName("stackedWidget")
         self.homePage = QtWidgets.QWidget()
         self.homePage.setObjectName("homePage")
-        self.verticalLayout = QtWidgets.QVBoxLayout(self.homePage)
-        self.verticalLayout.setContentsMargins(50, 30, 50, 0)
-        self.verticalLayout.setSpacing(0)
-        self.verticalLayout.setObjectName("verticalLayout")
+        self.homePageLayout = QtWidgets.QVBoxLayout(self.homePage)
+        self.homePageLayout.setContentsMargins(50, 30, 50, 0)
+        self.homePageLayout.setSpacing(0)
+        self.homePageLayout.setObjectName("homePageLayout")
         self.scrollArea = QtWidgets.QScrollArea(parent=self.homePage)
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaContainer = QtWidgets.QWidget()
-        self.scrollAreaContainer.setGeometry(QtCore.QRect(0, 0, 854, 570))
+        self.scrollAreaContainer.setGeometry(QtCore.QRect(0, 0, 900, 580))
         self.scrollAreaContainer.setObjectName("scrollAreaContainer")
         self.scrollAreaContainerLayout = QtWidgets.QVBoxLayout(self.scrollAreaContainer)
         self.scrollAreaContainerLayout.setContentsMargins(0, 0, 0, 0)
@@ -430,16 +435,29 @@ class Ui_MainWindow(object):
         self.historyFrameLayout.addWidget(self.label_3)
         self.scrollAreaContainerLayout.addWidget(self.historyFrame)
         self.scrollArea.setWidget(self.scrollAreaContainer)
-        self.verticalLayout.addWidget(self.scrollArea)
+        self.homePageLayout.addWidget(self.scrollArea)
         self.stackedWidget.addWidget(self.homePage)
         self.playerPage = QtWidgets.QWidget()
         self.playerPage.setObjectName("playerPage")
+        self.previewLabel = QtWidgets.QLabel(parent=self.playerPage)
+        self.previewLabel.setGeometry(QtCore.QRect(0, 0, 16, 16))
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding,
+            QtWidgets.QSizePolicy.Policy.Expanding,
+        )
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.previewLabel.sizePolicy().hasHeightForWidth())
+        self.previewLabel.setSizePolicy(sizePolicy)
+        self.previewLabel.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.previewLabel.setObjectName("previewLabel")
         self.stackedWidget.addWidget(self.playerPage)
         self.centralFrameLayout.addWidget(self.stackedWidget)
         self.centralWidgetLayout.addWidget(self.centralFrame)
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
+        self.stackedWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):

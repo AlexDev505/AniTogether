@@ -8,9 +8,10 @@ from PyQt6.QtWidgets import QMainWindow
 from qasync import asyncSlot, asyncClose
 
 from logger import logger
-from tools import create_loading_movie
-from ui import Ui_MainWindow, SearchResultWidget
+from tools import create_loading_movie, debug_title_data, trace_title_data
+from ui import Ui_MainWindow
 from ui_function import window_geometry, home_page, anilibria_agent
+from widgets import SearchResultWidget
 
 
 if ty.TYPE_CHECKING:
@@ -33,7 +34,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.frame_6.hide()  # TODO
 
-        self.search_result_widget: SearchResultWidget | None = None
+        self.searchResultWidget: SearchResultWidget | None = None
+        self.current_title: Title | None = None
+        # self.playerControlsWidget: Ui_PlayerControlsWidget | None = None
 
         self.setupSignals()
 
@@ -58,11 +61,26 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             home_page.searchLineEditFocusOutEvent, self
         )
 
+    def openHomePage(self) -> None:
+        logger.debug("Opening the home page")
+        self.stackedWidget.setCurrentWidget(self.homePage)
+        logger.debug("Home page is open")
+
+    def openPlayerPage(self, title: Title) -> None:
+        logger.debug("Opening the player page")
+        logger.opt(colors=True).debug(debug_title_data(title))
+        logger.opt(colors=True).trace(trace_title_data(title))
+
+        self.current_title = title
+
+        self.stackedWidget.setCurrentWidget(self.playerPage)
+        logger.debug("Player page is open")
+
     @asyncSlot()
     async def search_titles(self) -> None:
         query = self.searchLineEdit.text()
         if len(query) == 0:
-            return self.close_search_result_widget()
+            return self.closeSearchResultWidget()
         elif len(query) < 3:
             return
 
@@ -80,19 +98,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.searchLineEditStatusLabel.clear()
 
-        self.close_search_result_widget()
+        self.closeSearchResultWidget()
 
         if not len(titles):
             return
 
-        self.search_result_widget = SearchResultWidget(self)
-        self.search_result_widget.show()
+        self.searchResultWidget = SearchResultWidget(self)
+        self.searchResultWidget.show()
         for title in titles:
-            title_widget = self.search_result_widget.addTitle()
-            title_widget.setTitle(title.names.ru)
+            foundTitleWidget = self.searchResultWidget.addTitle()
+            foundTitleWidget.title = title
+            foundTitleWidget.mousePressEvent = partial(
+                home_page.titleWidgetMouseEvent, self, title
+            )
+            foundTitleWidget.setTitle(title.names.ru)
             anilibria_agent.start_loading_poster(
-                title_widget.titleIcon,
-                title_widget.titleIcon.minimumHeight(),
+                foundTitleWidget.titleIcon,
+                foundTitleWidget.titleIcon.minimumHeight(),
                 (
                     title.posters.small
                     or title.posters.medium
@@ -103,42 +125,40 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.searchLineEdit.mapToGlobal(QPoint(0, 0))
         )  # Получаем глобальные координаты строки поиска
         pos.setY(pos.y() + self.searchLineEdit.height() + 5)  # Отступ 5px вниз
-        self.search_result_widget.move(pos)
-        self.search_result_widget.setMinimumWidth(self.searchLineEditFrame.width())
-        self.search_result_widget.setMaximumWidth(self.width() - pos.x() * 2)
+        self.searchResultWidget.move(pos)
+        self.searchResultWidget.setMinimumWidth(self.searchLineEditFrame.width())
+        self.searchResultWidget.setMaximumWidth(self.width() - pos.x() * 2)
         # Через 200 миллисекунд обновляем размер виджета,
         # чтобы большие названия релизов скрылись
         # (функция не срабатывает на элементах, которые еще не отображены)
         QTimer.singleShot(
             200,
-            partial(
-                self.search_result_widget.setWidth, self.search_result_widget.width()
-            ),
+            partial(self.searchResultWidget.setWidth, self.searchResultWidget.width()),
         )
 
-    def close_search_result_widget(self) -> None:
+    def closeSearchResultWidget(self) -> None:
         """
         Закрывает виджет с результатами поиска релизов.
         """
-        if self.search_result_widget:
-            self.search_result_widget.delete()
-            self.search_result_widget = None
+        if self.searchResultWidget:
+            self.searchResultWidget.delete()
+            self.searchResultWidget = None
 
     def resizeEvent(self, _: QResizeEvent) -> None:
-        if self.search_result_widget:
-            self.search_result_widget.setMinimumWidth(self.searchLineEditFrame.width())
-            self.search_result_widget.setMaximumWidth(
-                self.width() - self.search_result_widget.x() * 2
+        if self.searchResultWidget:
+            self.searchResultWidget.setMinimumWidth(self.searchLineEditFrame.width())
+            self.searchResultWidget.setMaximumWidth(
+                self.width() - self.searchResultWidget.x() * 2
             )  # Ограничиваем максимальный размер, чтобы не выходил за рамки окна
             # Ширина, которая вмещает самое длинное название
             # или растяжение до размеров строки поиска
             width = max(
-                self.search_result_widget.max_title_widget_width,
+                self.searchResultWidget.max_title_widget_width,
                 self.searchLineEditFrame.width(),
             )
             # Меняем только если это нужно
-            if self.search_result_widget.width() != width:
-                self.search_result_widget.setWidth(width)
+            if self.searchResultWidget.width() != width:
+                self.searchResultWidget.setWidth(width)
 
     @asyncClose
     async def closeEvent(self, event: QCloseEvent) -> None:

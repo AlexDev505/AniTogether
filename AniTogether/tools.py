@@ -1,9 +1,17 @@
+from __future__ import annotations
+
+import typing as ty
 from functools import lru_cache
 
+import attrs
 from PyQt6.QtCore import Qt, QRect, QSize
 from PyQt6.QtGui import QPixmap, QImage, QBrush, QPainter, QWindow, QMovie
 
 from logger import logger
+
+
+if ty.TYPE_CHECKING:
+    from anilibria import Title
 
 
 def circle_image(image: QPixmap, size: int) -> QPixmap:
@@ -64,3 +72,109 @@ def create_loading_movie(size: int) -> QMovie:
     logger.opt(colors=True).trace(f"Loading animation size <y>{size}</y> created")
 
     return movie
+
+
+def pretty_view(data: ty.Union[dict, list], _indent=0) -> str:
+    """
+    Преобразовывает `data` в более удобный для восприятия вид.
+    """
+
+    def adapt_value(obj: ty.Any) -> ty.Any:
+        if isinstance(obj, (int, float, bool, dict)) or obj is None:
+            return obj
+        elif obj.__repr__().startswith("{"):
+            return obj.__dict__
+        elif obj.__repr__().startswith("["):
+            return list(obj)
+        else:
+            return str(obj)
+
+    def tag(t: str, content: ty.Any) -> str:
+        return f"<{t}>{content}</{t}>"
+
+    def dict_(content: dict) -> ty.List[str]:
+        values = []
+        for k, v in content.items():
+            k = tag("le", f'"{k}"' if isinstance(k, str) else k)
+            v = adapt_value(v)
+            if isinstance(v, str):
+                v = tag("y", '"%s"' % v.replace("\n", "\\n"))
+            elif isinstance(v, (dict, list)):
+                v = pretty_view(v, _indent=_indent + 1)
+            else:
+                v = tag("lc", v)
+            values.append(f"{k}: {v}")
+        return values
+
+    def list_(content: list) -> ty.List[str]:
+        items = []
+        for item in content:
+            item = adapt_value(item)
+            if isinstance(item, str):
+                items.append(tag("y", f'"{item}"'))
+            elif isinstance(item, (dict, list)):
+                items.append(pretty_view(item, _indent=_indent + 1))
+            else:
+                items.append(tag("lc", item))
+        return items
+
+    result = ""
+
+    if isinstance(data, dict):
+        if len(data) > 2 or not all(
+            isinstance(x, (str, int, float, bool)) or x is None for x in data.values()
+        ):
+            result = (
+                "{\n"
+                + "    " * (_indent + 1)
+                + f",\n{'    ' * (_indent + 1)}".join(dict_(data))
+                + "\n"
+                + "    " * _indent
+                + "}"
+            )
+        else:
+            result = "{" + ", ".join(dict_(data)) + "}"
+    elif isinstance(data, list):
+        if len(data) > 15 or not all(
+            isinstance(x, (str, int, float, bool)) for x in data
+        ):
+            result = (
+                "[\n"
+                + "    " * (_indent + 1)
+                + f",\n{'    ' * (_indent + 1)}".join(list_(data))
+                + "\n"
+                + "    " * _indent
+                + "]"
+            )
+        else:
+            result = "[" + ", ".join(list_(data)) + "]"
+
+    return tag("w", result)
+
+
+def debug_title_data(title: Title) -> str:
+    return pretty_view(
+        dict(
+            name=title.names.ru,
+            type=title.type.string,
+            episodes_count=title.type.episodes,
+        )
+    )
+
+
+def asdict(obj) -> dict | list:
+    if isinstance(obj, list):
+        return [asdict(x) for x in obj]
+    elif isinstance(obj, dict):
+        return {k: asdict(obj[k]) for k in obj}
+
+    if hasattr(obj.__class__, "__attrs_attrs__"):
+        attrs_attrs: tuple[attrs.Attribute] = obj.__class__.__attrs_attrs__
+        return {
+            attr.name: asdict(obj.__getattribute__(attr.name)) for attr in attrs_attrs
+        }
+    return obj
+
+
+def trace_title_data(title: Title) -> str:
+    return pretty_view(asdict(title))
