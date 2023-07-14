@@ -1,6 +1,0 @@
-PyQt6
-mpv
-loguru
-requests
-anilibria.py
-async-lru

@@ -1,0 +1,9 @@
+PyQt6==6.5.1
+qasync
+mpv
+loguru
+requests
+anilibria.py
+async-lru
+aiocsv
+aiofiles

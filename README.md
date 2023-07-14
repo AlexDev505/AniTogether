@@ -1,1 +1,1 @@
-# AniTogether
+# AniTogetherProject
