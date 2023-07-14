@@ -1,13 +1,22 @@
 from __future__ import annotations
 
 import re
+import typing as ty
 
 from aiohttp import ClientSession
-from anilibria import AniLibriaClient
+from anilibria import AniLibriaClient, HTTPException
 from async_lru import alru_cache
 from loguru import logger
 
-from .exceptions import CantFindAnilibriaMirror, ResourceDownloadingFailed
+from .exceptions import (
+    AnilibriaAgentException,
+    CantFindAnilibriaMirror,
+    ResourceDownloadingFailed,
+)
+
+
+if ty.TYPE_CHECKING:
+    from anilibria import Title
 
 
 class AnilibriaAgent(AniLibriaClient):
@@ -23,6 +32,35 @@ class AnilibriaAgent(AniLibriaClient):
         self.session: ClientSession = ...
         # URl на зеркало анилибрии
         self.anilibria_mirror: str | None = None
+
+    @alru_cache(maxsize=10, ttl=10)
+    async def get_title(self, title_id: int) -> Title:
+        try:
+            return await super().get_title(id=title_id)
+        except HTTPException as err:
+            err_data = re.fullmatch(
+                r"HTTP error with code: (\d+)!\nMessage: (.+)",
+                str(err),
+                flags=re.MULTILINE,
+            )
+            if err_data:
+                raise AnilibriaAgentException(int(err_data.group(1)), err_data.group(2))
+            raise AnilibriaAgentException(0, str(err))
+
+    @alru_cache(maxsize=10, ttl=10)
+    async def search_titles(self, query: str) -> list[Title]:
+        """
+        Выполняет поиск релизов по запросу.
+        Использует кэширование: хранит последние 10 запросов в течение 10 секунд.
+        :param query: Запрос.
+        :return: Список найденных релизов.
+        """
+        titles = await super().search_titles(search=query, items_per_page=10)
+        logger.opt(colors=True).debug(
+            f"<y>{len(titles.list)}</y> titles found by request <y>{query}</y>"
+        )
+        logger.trace(str([title.names.ru for title in titles.list]))
+        return titles.list
 
     async def create_session(self) -> ClientSession:
         if self.session is ... or self.session.closed:

@@ -165,9 +165,9 @@ def prepareSizeGrips(window: QMainWindow) -> None:
     window.cornerGrips = [QSizeGrip(window) for i in range(4)]
     for grip in iterGrips(window):
         grip.setStyleSheet("background-color: transparent;")
-    window.originalResizeEvent = window.resizeEvent
+    window.__setattr__("originalResizeEvent" + __name__, window.resizeEvent)
     window.resizeEvent = partial(resizeEvent, window)
-    window.originalEventFilter = window.eventFilter
+    window.__setattr__("originalEventFilter" + __name__, window.eventFilter)
     window.eventFilter = partial(eventFilter, window)
     window.installEventFilter(window)
 
@@ -240,11 +240,11 @@ def eventFilter(window: QMainWindow, obj: QObject, event: QEvent) -> bool:
             f"Grips are updated. Added: {event.child().objectName()}"
         )
 
-    return window.__getattribute__("originalEventFilter")(obj, event)
+    return window.__getattribute__("originalEventFilter" + __name__)(obj, event)
 
 
 def resizeEvent(window: QMainWindow, event: QResizeEvent):
-    window.__getattribute__("originalResizeEvent")(event)
+    window.__getattribute__("originalResizeEvent" + __name__)(event)
     updateGrips(window)
 
 

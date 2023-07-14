@@ -61,6 +61,25 @@ class Ui_MainWindow(object):
             "    background-color: rgb(47,47,47);\n"
             "}\n"
             "\n"
+            "/* VERTICAL SCROLLBAR */\n"
+            "QScrollBar:vertical {border: none;width: 8px}\n"
+            "/* HANDLE BAR VERTICAL */\n"
+            "QScrollBar::handle:vertical {\n"
+            "    background-color: rgb(53,53,53);\n"
+            "    min-height: 30px\n"
+            "}\n"
+            "/* BTN TOP */\n"
+            "QScrollBar::sub-line:vertical {height: 0px}\n"
+            "/* BTN BOTTOM */\n"
+            "QScrollBar::add-line:vertical {height: 0px}\n"
+            "/* RESET ARROW */\n"
+            "QScrollBar::up-arrow:vertical\n"
+            "QScrollBar::down-arrow:vertical,\n"
+            "QScrollBar::add-page:vertical,\n"
+            "QScrollBar::sub-page:vertical {\n"
+            "    background: transparent\n"
+            "}\n"
+            "\n"
             "\n"
             "/*  TOP FRAME */\n"
             "#topFrame {\n"
@@ -210,17 +229,20 @@ class Ui_MainWindow(object):
         self.homePage = QtWidgets.QWidget()
         self.homePage.setObjectName("homePage")
         self.homePageLayout = QtWidgets.QVBoxLayout(self.homePage)
-        self.homePageLayout.setContentsMargins(50, 30, 50, 0)
+        self.homePageLayout.setContentsMargins(0, 0, 0, 0)
         self.homePageLayout.setSpacing(0)
         self.homePageLayout.setObjectName("homePageLayout")
         self.scrollArea = QtWidgets.QScrollArea(parent=self.homePage)
+        self.scrollArea.setHorizontalScrollBarPolicy(
+            QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaContainer = QtWidgets.QWidget()
-        self.scrollAreaContainer.setGeometry(QtCore.QRect(0, 0, 900, 580))
+        self.scrollAreaContainer.setGeometry(QtCore.QRect(0, 0, 1000, 610))
         self.scrollAreaContainer.setObjectName("scrollAreaContainer")
         self.scrollAreaContainerLayout = QtWidgets.QVBoxLayout(self.scrollAreaContainer)
-        self.scrollAreaContainerLayout.setContentsMargins(0, 0, 0, 0)
+        self.scrollAreaContainerLayout.setContentsMargins(50, 30, 50, 40)
         self.scrollAreaContainerLayout.setSpacing(20)
         self.scrollAreaContainerLayout.setObjectName("scrollAreaContainerLayout")
         self.searchFrame = QtWidgets.QFrame(parent=self.scrollAreaContainer)
@@ -388,51 +410,80 @@ class Ui_MainWindow(object):
         self.line.setObjectName("line")
         self.scrollAreaContainerLayout.addWidget(self.line)
         self.historyFrame = QtWidgets.QFrame(parent=self.scrollAreaContainer)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding,
+            QtWidgets.QSizePolicy.Policy.Expanding,
+        )
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.historyFrame.sizePolicy().hasHeightForWidth())
+        self.historyFrame.setSizePolicy(sizePolicy)
         self.historyFrame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.historyFrame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.historyFrame.setObjectName("historyFrame")
         self.historyFrameLayout = QtWidgets.QVBoxLayout(self.historyFrame)
         self.historyFrameLayout.setContentsMargins(0, 0, 0, 0)
         self.historyFrameLayout.setObjectName("historyFrameLayout")
-        self.label_2 = QtWidgets.QLabel(parent=self.historyFrame)
-        font = QtGui.QFont()
-        font.setFamily("Arial")
-        font.setPointSize(15)
-        font.setBold(True)
-        self.label_2.setFont(font)
-        self.label_2.setObjectName("label_2")
-        self.historyFrameLayout.addWidget(self.label_2)
-        self.frame_6 = QtWidgets.QFrame(parent=self.historyFrame)
+        self.historyFrametitleLabel = QtWidgets.QLabel(parent=self.historyFrame)
         sizePolicy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Policy.Preferred,
-            QtWidgets.QSizePolicy.Policy.Expanding,
+            QtWidgets.QSizePolicy.Policy.Preferred,
         )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.frame_6.sizePolicy().hasHeightForWidth())
-        self.frame_6.setSizePolicy(sizePolicy)
-        self.frame_6.setObjectName("frame_6")
-        self.gridLayout = QtWidgets.QGridLayout(self.frame_6)
-        self.gridLayout.setContentsMargins(0, 0, 0, 0)
-        self.gridLayout.setObjectName("gridLayout")
-        self.historyFrameLayout.addWidget(self.frame_6)
-        self.label_3 = QtWidgets.QLabel(parent=self.historyFrame)
+        sizePolicy.setHeightForWidth(
+            self.historyFrametitleLabel.sizePolicy().hasHeightForWidth()
+        )
+        self.historyFrametitleLabel.setSizePolicy(sizePolicy)
+        font = QtGui.QFont()
+        font.setFamily("Arial")
+        font.setPointSize(15)
+        font.setBold(True)
+        self.historyFrametitleLabel.setFont(font)
+        self.historyFrametitleLabel.setObjectName("historyFrametitleLabel")
+        self.historyFrameLayout.addWidget(self.historyFrametitleLabel)
+        self.historyContainer = QtWidgets.QFrame(parent=self.historyFrame)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum
+        )
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.historyContainer.sizePolicy().hasHeightForWidth()
+        )
+        self.historyContainer.setSizePolicy(sizePolicy)
+        self.historyContainer.setObjectName("historyContainer")
+        self.historyContainerLayout = QtWidgets.QGridLayout(self.historyContainer)
+        self.historyContainerLayout.setContentsMargins(0, 0, 0, 0)
+        self.historyContainerLayout.setSpacing(10)
+        self.historyContainerLayout.setObjectName("historyContainerLayout")
+        self.historyFrameLayout.addWidget(self.historyContainer)
+        self.historyIsEmptyLabel = QtWidgets.QLabel(parent=self.historyFrame)
         sizePolicy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Policy.Expanding,
             QtWidgets.QSizePolicy.Policy.Expanding,
         )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.label_3.sizePolicy().hasHeightForWidth())
-        self.label_3.setSizePolicy(sizePolicy)
+        sizePolicy.setHeightForWidth(
+            self.historyIsEmptyLabel.sizePolicy().hasHeightForWidth()
+        )
+        self.historyIsEmptyLabel.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(15)
         font.setBold(True)
-        self.label_3.setFont(font)
-        self.label_3.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.label_3.setObjectName("label_3")
-        self.historyFrameLayout.addWidget(self.label_3)
+        self.historyIsEmptyLabel.setFont(font)
+        self.historyIsEmptyLabel.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.historyIsEmptyLabel.setObjectName("historyIsEmptyLabel")
+        self.historyFrameLayout.addWidget(self.historyIsEmptyLabel)
+        spacerItem = QtWidgets.QSpacerItem(
+            20,
+            40,
+            QtWidgets.QSizePolicy.Policy.Minimum,
+            QtWidgets.QSizePolicy.Policy.Expanding,
+        )
+        self.historyFrameLayout.addItem(spacerItem)
         self.scrollAreaContainerLayout.addWidget(self.historyFrame)
         self.scrollArea.setWidget(self.scrollAreaContainer)
         self.homePageLayout.addWidget(self.scrollArea)
@@ -478,5 +529,5 @@ class Ui_MainWindow(object):
         self.joinToRoomLineEdit.setPlaceholderText(
             _translate("MainWindow", "Номер комнаты ...")
         )
-        self.label_2.setText(_translate("MainWindow", "История"))
-        self.label_3.setText(_translate("MainWindow", "Список пуст"))
+        self.historyFrametitleLabel.setText(_translate("MainWindow", "История"))
+        self.historyIsEmptyLabel.setText(_translate("MainWindow", "Список пуст"))

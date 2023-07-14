@@ -5,7 +5,7 @@ from functools import lru_cache
 
 import attrs
 from PyQt6.QtCore import Qt, QRect, QSize
-from PyQt6.QtGui import QPixmap, QImage, QBrush, QPainter, QWindow, QMovie
+from PyQt6.QtGui import QPixmap, QImage, QBrush, QPainter, QWindow, QMovie, QColor
 
 from logger import logger
 
@@ -56,6 +56,19 @@ def circle_image(image: QPixmap, size: int) -> QPixmap:
     )
 
     return pixmap
+
+
+def rounded_image(image: QPixmap, radius: int) -> QPixmap:
+    rounded = QPixmap(image.size())
+    rounded.fill(QColor("transparent"))
+
+    # draw rounded rect on new pixmap using original pixmap as brush
+    painter = QPainter(rounded)
+    painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+    painter.setBrush(QBrush(image))
+    painter.setPen(Qt.PenStyle.NoPen)
+    painter.drawRoundedRect(image.rect(), radius, radius)
+    return rounded
 
 
 @lru_cache(maxsize=10)
