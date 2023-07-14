@@ -13,8 +13,16 @@ if ty.TYPE_CHECKING:
 
 
 class FoundTitleWidget(QFrame, Ui_FoundTitle):
+    """
+    Виджет релиза, отображаемый в результатах поиска релизов.
+    """
+
+    # Название релиза изменено
     titleChanged: QtCore.pyqtBoundSignal = pyqtSignal()
 
+    # Значения, которые использует контейнер результатов поиска
+    # для вычисления своих размеров.
+    # Определяются при первой инициализации экземпляра
     widgetHeight: int = 0
     hMargin: int = 0
 
@@ -23,8 +31,11 @@ class FoundTitleWidget(QFrame, Ui_FoundTitle):
         self.setupUi(self)
         self.setParent(parent)
 
+        # Оригинальное название релиза
         self.original_title: str = ""
-        self.charWidth: int = 1
+        # Средняя ширина символа.
+        # Определяется при изменении названия релиза.
+        self.averageCharWidth: int = 1
 
         if self.widgetHeight == 0:
             margins = self.foundTitleLayout.contentsMargins()
@@ -41,13 +52,18 @@ class FoundTitleWidget(QFrame, Ui_FoundTitle):
         self.original_title = title
         self.titleLabel.setText(title)
         self.titleChanged.emit()
-        self.charWidth = self.titleLabel.fontMetrics().boundingRect(
+        self.averageCharWidth = self.titleLabel.fontMetrics().boundingRect(
             title
         ).width() / len(title)
 
-    def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
-        allowed_chars = int(self.titleLabel.width() // self.charWidth)
-        if allowed_chars < len(self.original_title):
-            self.titleLabel.setText(self.original_title[: allowed_chars - 3] + "...")
+    def resizeEvent(self, _: QtGui.QResizeEvent) -> None:
+        """
+        Событие изменения размера виджета.
+        """
+        allowed_chars_count = int(self.titleLabel.width() // self.averageCharWidth)
+        if allowed_chars_count < len(self.original_title):
+            self.titleLabel.setText(
+                self.original_title[: allowed_chars_count - 3] + "..."
+            )
         else:
             self.titleLabel.setText(self.original_title)

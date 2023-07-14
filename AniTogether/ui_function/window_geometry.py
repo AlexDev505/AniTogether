@@ -10,17 +10,21 @@ import typing as ty
 from functools import partial
 
 from PyQt6.QtCore import QRect, Qt, QChildEvent
-from PyQt6.QtWidgets import QWidget, QSizeGrip, QFrame
+from PyQt6.QtWidgets import QSizeGrip
 from loguru import logger
+
+from widgets import SideGrip
 
 
 if ty.TYPE_CHECKING:
-    from PyQt6.QtCore import QObject, QEvent
-    from PyQt6.QtWidgets import QMainWindow
-    from PyQt6.QtGui import QMouseEvent, QResizeEvent
+    from PyQt6 import QtCore, QtWidgets, QtGui
 
 
-def prepareDragZone(window: QMainWindow, obj: QWidget) -> None:
+# Размер областей захвата
+SIZE_GRIP_WIDTH = 8
+
+
+def prepareDragZone(window: QtWidgets.QMainWindow, obj: QtWidgets.QWidget) -> None:
     """
     Подготавливает виджет, отвечающий за перемещение окна.
     :param window: Экземпляр окна.
@@ -31,7 +35,7 @@ def prepareDragZone(window: QMainWindow, obj: QWidget) -> None:
     obj.mouseReleaseEvent = lambda e: dragZoneReleaseEvent(window, e)
 
 
-def dragZonePressEvent(window: QMainWindow, event: QMouseEvent) -> None:
+def dragZonePressEvent(window: QtWidgets.QMainWindow, event: QtGui.QMouseEvent) -> None:
     """
     Обрабатывает нажатие на виджет, отвечающий за перемещение окна.
     :param window: Экземпляр окна.
@@ -41,7 +45,7 @@ def dragZonePressEvent(window: QMainWindow, event: QMouseEvent) -> None:
         window.__dict__["_drag_pos"] = event.globalPosition().toPoint()
 
 
-def dragZoneMoveEvent(window: QMainWindow, event: QMouseEvent) -> None:
+def dragZoneMoveEvent(window: QtWidgets.QMainWindow, event: QtGui.QMouseEvent) -> None:
     """
     Обрабатывает движение мыши по виджету, отвечающему за перемещение окна.
     :param window: Экземпляр окна.
@@ -74,7 +78,9 @@ def dragZoneMoveEvent(window: QMainWindow, event: QMouseEvent) -> None:
         window.__dict__["_drag_pos"] = event.globalPosition().toPoint()
 
 
-def dragZoneReleaseEvent(window: QMainWindow, event: QMouseEvent) -> None:
+def dragZoneReleaseEvent(
+    window: QtWidgets.QMainWindow, event: QtGui.QMouseEvent
+) -> None:
     """
     Обрабатывает отпускание кнопки мыши на виджете, отвечающем за перемещение окна.
     :param window: Экземпляр окна.
@@ -84,78 +90,21 @@ def dragZoneReleaseEvent(window: QMainWindow, event: QMouseEvent) -> None:
         window.__dict__["_drag_pos"] = None
 
 
-class SideGrip(QFrame):
+def iterGrips(window: QtWidgets.QMainWindow) -> ty.Generator[SideGrip | QSizeGrip]:
     """
-    Боковые области, для изменения размеров окна.
+    :return: Генератор по областям захвата.
     """
-
-    def __init__(self, parent: QMainWindow, edge: Qt.Edge):
-        """
-        :param parent: Главное окно.
-        :param edge: Сторона.
-        """
-        QFrame.__init__(self, parent)
-        self.setObjectName("sideGrip")
-        if edge == Qt.Edge.LeftEdge:
-            self.setCursor(Qt.CursorShape.SizeHorCursor)
-            self.resizeFunc = self.resizeLeft
-        elif edge == Qt.Edge.TopEdge:
-            self.setCursor(Qt.CursorShape.SizeVerCursor)
-            self.resizeFunc = self.resizeTop
-        elif edge == Qt.Edge.RightEdge:
-            self.setCursor(Qt.CursorShape.SizeHorCursor)
-            self.resizeFunc = self.resizeRight
-        else:
-            self.setCursor(Qt.CursorShape.SizeVerCursor)
-            self.resizeFunc = self.resizeBottom
-        self.mouse_pos = None
-
-    def resizeLeft(self, delta):
-        window = self.window()
-        width = max(window.minimumWidth(), window.width() - delta.x())
-        geo = window.geometry()
-        geo.setLeft(geo.right() - width)
-        window.setGeometry(geo)
-
-    def resizeTop(self, delta):
-        window = self.window()
-        height = max(window.minimumHeight(), window.height() - delta.y())
-        geo = window.geometry()
-        geo.setTop(geo.bottom() - height)
-        window.setGeometry(geo)
-
-    def resizeRight(self, delta):
-        window = self.window()
-        width = max(window.minimumWidth(), window.width() + delta.x())
-        window.resize(width, window.height())
-
-    def resizeBottom(self, delta):
-        window = self.window()
-        height = max(window.minimumHeight(), window.height() + delta.y())
-        window.resize(window.width(), height)
-
-    def mousePressEvent(self, event):
-        if event.button() == Qt.MouseButton.LeftButton:
-            self.mouse_pos = event.pos()
-
-    def mouseMoveEvent(self, event):
-        if self.mouse_pos is not None:
-            delta = event.pos() - self.mouse_pos
-            self.resizeFunc(delta)
-
-    def mouseReleaseEvent(self, event):
-        self.mouse_pos = None
-
-
-def iterGrips(window: QMainWindow) -> ty.Generator[SideGrip | QSizeGrip]:
     for grip in window.__getattribute__("cornerGrips"):
         yield grip
     for grip in window.__getattribute__("sideGrips"):
         yield grip
 
 
-def prepareSizeGrips(window: QMainWindow) -> None:
-    window.__setattr__("_grip_size", 8)
+def prepareSizeGrips(window: QtWidgets.QMainWindow) -> None:
+    """
+    Подготавливает области захвата.
+    """
+    window.__setattr__("_grip_size", SIZE_GRIP_WIDTH)
     window.sideGrips = [
         SideGrip(window, Qt.Edge.LeftEdge),
         SideGrip(window, Qt.Edge.TopEdge),
@@ -172,14 +121,20 @@ def prepareSizeGrips(window: QMainWindow) -> None:
     window.installEventFilter(window)
 
 
-def setGripSize(window: QMainWindow, size: int) -> None:
+def setGripSize(window: QtWidgets.QMainWindow, size: int) -> None:
+    """
+    Изменяет размер областей захвата.
+    """
     if size == window.__getattribute__("_grip_size"):
         return
     window.__setattr__("_grip_size", max(2, size))
     updateGrips(window)
 
 
-def updateGrips(window: QMainWindow) -> None:
+def updateGrips(window: QtWidgets.QMainWindow) -> None:
+    """
+    Обновляет положение областей захвата.
+    """
     grip_size = window.__getattribute__("_grip_size")
 
     outRect = window.rect()
@@ -220,7 +175,10 @@ def updateGrips(window: QMainWindow) -> None:
     )
 
 
-def toggleGrips(window: QMainWindow, value: bool) -> None:
+def toggleGrips(window: QtWidgets.QMainWindow, value: bool) -> None:
+    """
+    Включает / выключает области захвата.
+    """
     for grip in iterGrips(window):
         if value:
             grip.show()
@@ -228,14 +186,16 @@ def toggleGrips(window: QMainWindow, value: bool) -> None:
             grip.hide()
 
 
-def eventFilter(window: QMainWindow, obj: QObject, event: QEvent) -> bool:
+def eventFilter(
+    window: QtWidgets.QMainWindow, obj: QtCore.QObject, event: QtCore.QEvent
+) -> bool:
     if (
         isinstance(event, QChildEvent)
         and event.added()
         and event.child().isWidgetType()
-    ):
+    ):  # Добавление нового виджета
         for grip in iterGrips(window):
-            grip.raise_()
+            grip.raise_()  # Поднимает области захвата выше всех остальных виджетов
         logger.opt(colors=True).trace(
             f"Grips are updated. Added: {event.child().objectName()}"
         )
@@ -243,12 +203,15 @@ def eventFilter(window: QMainWindow, obj: QObject, event: QEvent) -> bool:
     return window.__getattribute__("originalEventFilter" + __name__)(obj, event)
 
 
-def resizeEvent(window: QMainWindow, event: QResizeEvent):
+def resizeEvent(window: QtWidgets.QMainWindow, event: QtGui.QResizeEvent):
+    """
+    Событие изменения размера окна.
+    """
     window.__getattribute__("originalResizeEvent" + __name__)(event)
     updateGrips(window)
 
 
-def toggleFullScreen(window: QMainWindow) -> None:
+def toggleFullScreen(window: QtWidgets.QMainWindow) -> None:
     """
     Активирует/выключает полноэкранный режим.
     :param window: Экземпляр окна.

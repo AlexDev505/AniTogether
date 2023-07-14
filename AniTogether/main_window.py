@@ -18,8 +18,13 @@ if ty.TYPE_CHECKING:
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
+    """
+    Главное окно приложения.
+    """
+
     # Страница плеера открыта
     playerPageIsOpen: QtCore.pyqtBoundSignal = pyqtSignal()
+    # Главная страница открыта
     homePageIsOpen: QtCore.pyqtBoundSignal = pyqtSignal()
 
     def __init__(self):
@@ -36,11 +41,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.setupUiFunctions()
 
-        # Подготавливаем область, отвечающую за перемещение окна
-        window_geometry.prepareDragZone(self, self.topFrame)
-        # Подготавливаем области, отвечающие за изменение размеров окна
-        window_geometry.prepareSizeGrips(self)
-
         self.openHomePage()
 
     def setupUiFunctions(self) -> None:
@@ -53,6 +53,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         )  # Кнопка открытия приложения в полный экран
         self.minimizeAppBtn.clicked.connect(self.showMinimized)
 
+        # Подготавливаем область, отвечающую за перемещение окна
+        window_geometry.prepareDragZone(self, self.topFrame)
+        # Подготавливаем области, отвечающие за изменение размеров окна
+        window_geometry.prepareSizeGrips(self)
+
+        # Подключаем модули управления разделами
         home_page.setupUiFunctions(self)
         player_page.setupUiFunctions(self)
 
@@ -61,9 +67,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def openPlayerPage(self, title: Title, episode_number: int = 1) -> None:
         player_page.openPlayerPage(self, title, episode_number)
-
-    def resizeEvent(self, _: QtGui.QResizeEvent) -> None:
-        self.scrollAreaContainer.setMaximumWidth(self.width())
 
     @asyncClose
     async def closeEvent(self, event: QtGui.QCloseEvent) -> None:

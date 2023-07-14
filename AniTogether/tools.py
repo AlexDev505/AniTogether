@@ -1,3 +1,9 @@
+"""
+
+Функции, которые используются в различных модулях приложения.
+
+"""
+
 from __future__ import annotations
 
 import typing as ty
@@ -59,10 +65,14 @@ def circle_image(image: QPixmap, size: int) -> QPixmap:
 
 
 def rounded_image(image: QPixmap, radius: int) -> QPixmap:
+    """
+    Скругляет углы картинки.
+    :param image: Исходное изображение.
+    :param radius: Радиус скругления.
+    :return: Экземпляр QPixmap
+    """
     rounded = QPixmap(image.size())
     rounded.fill(QColor("transparent"))
-
-    # draw rounded rect on new pixmap using original pixmap as brush
     painter = QPainter(rounded)
     painter.setRenderHint(QPainter.RenderHint.Antialiasing)
     painter.setBrush(QBrush(image))
@@ -89,7 +99,7 @@ def create_loading_movie(size: int) -> QMovie:
 
 def pretty_view(data: ty.Union[dict, list], _indent=0) -> str:
     """
-    Преобразовывает `data` в более удобный для восприятия вид.
+    Преобразует `data` в более удобный для восприятия вид.
     """
 
     def adapt_value(obj: ty.Any) -> ty.Any:
@@ -147,6 +157,7 @@ def pretty_view(data: ty.Union[dict, list], _indent=0) -> str:
             )
         else:
             result = "{" + ", ".join(dict_(data)) + "}"
+
     elif isinstance(data, list):
         if len(data) > 15 or not all(
             isinstance(x, (str, int, float, bool)) for x in data
@@ -166,6 +177,11 @@ def pretty_view(data: ty.Union[dict, list], _indent=0) -> str:
 
 
 def debug_title_data(title: Title) -> str:
+    """
+    Преобразует экземпляр релиза в читаемый формат для DEBUG записи.
+    :param title: Экземпляр релиза.
+    :return: Строка.
+    """
     return pretty_view(
         dict(
             name=title.names.ru,
@@ -176,6 +192,9 @@ def debug_title_data(title: Title) -> str:
 
 
 def asdict(obj) -> dict | list:
+    """
+    Преобразует attrs класс в словарь.
+    """
     if isinstance(obj, list):
         return [asdict(x) for x in obj]
     elif isinstance(obj, dict):
@@ -190,4 +209,9 @@ def asdict(obj) -> dict | list:
 
 
 def trace_title_data(title: Title) -> str:
+    """
+    Преобразует экземпляр релиза в читаемый формат для TRACE записи.
+    :param title: Экземпляр релиза.
+    :return: Строка.
+    """
     return pretty_view(asdict(title))

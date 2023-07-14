@@ -40,6 +40,7 @@ class Ui_TitleFromHistory(object):
         self.watchProgressSlider.setGeometry(QtCore.QRect(30, 430, 84, 30))
         self.watchProgressSlider.setMinimumSize(QtCore.QSize(0, 30))
         self.watchProgressSlider.setMaximumSize(QtCore.QSize(16777215, 30))
+        self.watchProgressSlider.setTracking(False)
         self.watchProgressSlider.setOrientation(QtCore.Qt.Orientation.Horizontal)
         self.watchProgressSlider.setObjectName("watchProgressSlider")
         self.watchProgressLabel = QtWidgets.QLabel(parent=TitleFromHistory)

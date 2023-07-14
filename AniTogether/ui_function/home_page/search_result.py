@@ -1,3 +1,9 @@
+"""
+
+Функционал виджета результатов поиска релизов.
+
+"""
+
 from __future__ import annotations
 
 import asyncio
@@ -22,7 +28,6 @@ if ty.TYPE_CHECKING:
 
 
 anilibria_agent = AnilibriaAgent.get()
-last_search_use: float = 0
 
 
 def setupUiFunctions(main_window: MainWindow) -> None:
@@ -35,7 +40,7 @@ def show(main_window: MainWindow, titles: list[Title]) -> None:
     """
     Отображает результаты поиска релизов.
     """
-    close(main_window)
+    close(main_window)  # Закрываем прошлые результаты поиска
     if not len(titles):
         return
 
@@ -43,6 +48,7 @@ def show(main_window: MainWindow, titles: list[Title]) -> None:
     main_window.__setattr__("searchResultWidget", searchResultWidget)
     searchResultWidget.show()
 
+    # Заполняем контейнер
     for title in titles:
         foundTitleWidget = searchResultWidget.addTitle()
         foundTitleWidget.title = title
@@ -56,6 +62,7 @@ def show(main_window: MainWindow, titles: list[Title]) -> None:
             (title.posters.small or title.posters.medium or title.posters.original).url,
         )
 
+    # Устанавливаем позицию и ограничения размера
     pos = main_window.centralWidget().mapFromGlobal(
         main_window.searchLineEdit.mapToGlobal(QPoint(0, 0))
     )  # Получаем глобальные координаты строки поиска
@@ -63,6 +70,7 @@ def show(main_window: MainWindow, titles: list[Title]) -> None:
     searchResultWidget.move(pos)
     searchResultWidget.setMinimumWidth(main_window.searchLineEditFrame.width())
     searchResultWidget.setMaximumWidth(main_window.width() - pos.x() * 2)
+
     # Через 200 миллисекунд обновляем размер виджета,
     # чтобы большие названия релизов скрылись
     # (функция не срабатывает на элементах, которые еще не отображены)
@@ -84,9 +92,6 @@ def start_loading_poster(
     :param poster_url: Ссылка на постер.
     """
     asyncio.ensure_future(load_poster(posterLabel, size, poster_url))
-    logger.opt(colors=True).trace(
-        f"Poster for QLabel <y>{id(posterLabel)}</y> loading started"
-    )
 
 
 async def load_poster(
@@ -100,6 +105,10 @@ async def load_poster(
     :param size: Размер постера.
     :param poster_url: Ссылка на постер.
     """
+    logger.opt(colors=True).trace(
+        f"Poster for QLabel <y>{id(posterLabel)}</y> loading started"
+    )
+
     try:
         poster = QPixmap()
         poster.loadFromData(await anilibria_agent.download_resource(poster_url))

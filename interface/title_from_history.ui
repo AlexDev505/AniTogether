@@ -56,6 +56,9 @@ QSlider::add-page:horizontal {
      <height>30</height>
     </size>
    </property>
+   <property name="tracking">
+    <bool>false</bool>
+   </property>
    <property name="orientation">
     <enum>Qt::Horizontal</enum>
    </property>

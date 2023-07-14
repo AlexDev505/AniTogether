@@ -7,15 +7,21 @@ from .found_title import FoundTitleWidget
 
 
 class SearchResultWidget(QFrame, Ui_SearchResult):
-    ITEMS_PER_PAGE = 5
+    """
+    Виджет - контейнер для результатов поиска релизов.
+    """
+
+    ITEMS_PER_PAGE = 5  # Максимальное кол-во элементов до появления полосы прокрутки
 
     def __init__(self, parent):
         super().__init__()
         self.setupUi(self)
         self.setParent(parent)
 
+        # Изменяем шаг прокрутки колесиком мыши
         self.scrollArea.verticalScrollBar().setSingleStep(10)
 
+        # Максимальная ширина виджета релиза
         self.max_title_widget_width: int = 0
         self._deleted = False
 
@@ -27,10 +33,10 @@ class SearchResultWidget(QFrame, Ui_SearchResult):
         :return: Пустой виджет релиза.
         """
         foundTitleWidget = FoundTitleWidget(self.scrollAreaContainer)
-        self.scrollAreaContainerLayout.addWidget(foundTitleWidget)
         foundTitleWidget.titleChanged.connect(
             partial(self._check_max_title_widget_width, foundTitleWidget)
-        )
+        )  # Устанавливаем обработчик на событие изменения названия релиза
+        self.scrollAreaContainerLayout.addWidget(foundTitleWidget)
 
         # FoundTitleWidget.widgetHeight вычисляется
         # только при первой инициализации FoundTitleWidget
@@ -44,6 +50,10 @@ class SearchResultWidget(QFrame, Ui_SearchResult):
         return foundTitleWidget
 
     def _check_max_title_widget_width(self, foundTitleWidget: FoundTitleWidget) -> None:
+        """
+        Определяет максимальную ширину виджета релиза.
+        :param foundTitleWidget: Виджет в котором поменялось название релиза.
+        """
         self.max_title_widget_width = max(
             self.max_title_widget_width,
             foundTitleWidget.sizeHint().width() + FoundTitleWidget.hMargin * 2,
@@ -51,12 +61,18 @@ class SearchResultWidget(QFrame, Ui_SearchResult):
         self.setWidth(self.max_title_widget_width)
 
     def setWidth(self, width: int) -> None:
+        """
+        Устанавливает ширину контейнера и его элементов.
+        :param width: Ширина.
+        """
         # Вызов функции в QTimer, может наткнуться на удаленный виджет
         if self._deleted:
             return
+
         rect = self.geometry()
         rect.setWidth(width)
         self.setGeometry(rect)
+
         titleWidget: FoundTitleWidget
         for titleWidget in self.scrollAreaContainer.children():
             if type(titleWidget) is FoundTitleWidget:

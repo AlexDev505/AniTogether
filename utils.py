@@ -12,7 +12,7 @@ logger.add(
     level=0,
 )
 
-EXECUTE = []
+EXECUTE = [r"AniTogether\ui\icons_rc.py"]
 
 
 def convert(x: int) -> str:

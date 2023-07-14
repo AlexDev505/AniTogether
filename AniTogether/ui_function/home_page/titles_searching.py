@@ -1,3 +1,9 @@
+"""
+
+Функционал поиска релизов.
+
+"""
+
 from __future__ import annotations
 
 import asyncio
@@ -39,6 +45,7 @@ async def search(main_window: MainWindow) -> None:
     """
     Выполняет поиск релизов.
     """
+    # Проверка длинны запроса
     query = main_window.searchLineEdit.text()
     if len(query) == 0:
         return search_result.close(main_window)
@@ -48,15 +55,18 @@ async def search(main_window: MainWindow) -> None:
     logger.opt(colors=True).debug(f"Search request <e>query</e>=<y>{query}</y>")
 
     showLoadingMovie(main_window)
-    await waitRequestsLimit()
+    await waitRequestsLimit()  # Ожидаем снятия ограничения лимита на запросы
+    # Если во время ожидания пользователь изменил запрос
     if main_window.searchLineEdit.text() != query:
         return
     global last_search_use
     last_search_use = time()
 
+    # Поиск релизов
     titles = await anilibria_agent.search_titles(query)
 
     hideLoadingMovie(main_window)
+    # Если во время поиска пользователь перешел на другую страницу
     if main_window.stackedWidget.currentWidget() != main_window.homePage:
         return
 
