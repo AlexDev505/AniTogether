@@ -19,10 +19,6 @@ ROOMS: dict[ROOM_ID, list[User]] = {}
 class User:
     ws: Ws
     id: USER_ID
-    username: str
-
-    def to_dict(self) -> dict:
-        return dict(id=self.id, username=self.username)
 
 
 def generate_room_id() -> ROOM_ID:
@@ -44,19 +40,19 @@ def get_room(room_id: ROOM_ID) -> list[User]:
     return room
 
 
-def create_room(ws: Ws, username: str) -> ROOM_ID:
+def create_room(ws: Ws) -> ROOM_ID:
     room_id = generate_room_id()
-    user = User(ws=ws, id=0, username=username)
+    user = User(ws=ws, id=0)
     ROOMS[room_id] = [user]
     return room_id
 
 
-def join_room(ws: Ws, username: str, room_id: ROOM_ID) -> list[User]:
+def join_room(ws: Ws, room_id: ROOM_ID) -> list[User]:
     if not (room := ROOMS.get(room_id)):
         raise KeyError("Room not found")
 
     last_user = room[-1]
-    user = User(ws=ws, id=last_user.id + 1, username=username)
+    user = User(ws=ws, id=last_user.id + 1)
     room.append(user)
     return room
 

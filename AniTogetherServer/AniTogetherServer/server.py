@@ -22,8 +22,10 @@ async def server(websocket: WebSocketServerProtocol):
         assert type(data) is dict
         assert "command" in data
 
-        if data.get("command") == "create_room":
-            await create_room(websocket, data)
+        if data.get("command") == "create":
+            await create_room(websocket)
+        elif data.get("command") == "join":
+            await join_room(websocket, data)
         else:
             await error(websocket, "unknown command")
 
@@ -33,11 +35,8 @@ async def server(websocket: WebSocketServerProtocol):
         pass
 
 
-async def create_room(websocket: WebSocketServerProtocol, data: dict) -> None:
-    if not (username := data.get("username")):
-        return await error(websocket, "username not passed")
-
-    room_id = rooms.create_room(websocket, username)
+async def create_room(websocket: WebSocketServerProtocol) -> None:
+    room_id = rooms.create_room(websocket)
 
     try:
         await send(websocket, "init", room_id=room_id)
@@ -47,13 +46,11 @@ async def create_room(websocket: WebSocketServerProtocol, data: dict) -> None:
 
 
 async def join_room(websocket: WebSocketServerProtocol, data: dict) -> None:
-    if not (username := data.get("username")):
-        return await error(websocket, "username not passed")
-    elif not (room_id := data.get("room_id")):
+    if not (room_id := data.get("room_id")):
         return await error(websocket, "room_id not passed")
 
     try:
-        room = rooms.join_room(websocket, username, room_id)
+        room = rooms.join_room(websocket, room_id)
     except KeyError as err:
         raise ValueError(str(err))
 
@@ -63,7 +60,7 @@ async def join_room(websocket: WebSocketServerProtocol, data: dict) -> None:
             room,
             "join",
             exclude_sender=False,
-            members=[member.to_dict() for member in room],
+            members=[member.id for member in room],
         )
         await room_handler(websocket, room_id)
     finally:
