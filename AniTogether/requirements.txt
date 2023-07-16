@@ -7,3 +7,4 @@ anilibria.py
 async-lru
 aiocsv
 aiofiles
+websockets

@@ -12,13 +12,31 @@ if ty.TYPE_CHECKING:
     USER_ID = int
 
 
-ROOMS: dict[ROOM_ID, list[User]] = {}
+ROOMS: dict[ROOM_ID, Room] = {}
 
 
 @dataclass
 class User:
     ws: Ws
     id: USER_ID
+    muted: bool
+
+
+@dataclass
+class Room:
+    room_id: ROOM_ID
+    members: list[User]
+    mute_new_members: bool
+
+    def get_by_ws(self, ws: Ws) -> User | None:
+        for member in self.members:
+            if member.ws.id == ws.id:
+                return member
+
+    def get_by_id(self, user_id: USER_ID) -> User | None:
+        for member in self.members:
+            if member.id == user_id:
+                return member
 
 
 def generate_room_id() -> ROOM_ID:
@@ -34,42 +52,41 @@ def generate_room_id() -> ROOM_ID:
     return room_id
 
 
-def get_room(room_id: ROOM_ID) -> list[User]:
+def get_room(room_id: ROOM_ID) -> Room:
     if not (room := ROOMS.get(room_id)):
-        raise KeyError("Room not found")
+        raise KeyError("Комната не существует")
     return room
 
 
-def create_room(ws: Ws) -> ROOM_ID:
+def create_room(ws: Ws, mute_new_members: bool) -> ROOM_ID:
     room_id = generate_room_id()
-    user = User(ws=ws, id=0)
-    ROOMS[room_id] = [user]
+    ROOMS[room_id] = Room(room_id, [User(ws=ws, id=0, muted=False)], mute_new_members)
     return room_id
 
 
-def join_room(ws: Ws, room_id: ROOM_ID) -> list[User]:
+def join_room(ws: Ws, room_id: ROOM_ID) -> Room:
     if not (room := ROOMS.get(room_id)):
-        raise KeyError("Room not found")
+        raise KeyError("Комната не существует")
 
-    last_user = room[-1]
-    user = User(ws=ws, id=last_user.id + 1)
-    room.append(user)
+    last_user = room.members[-1]
+    user = User(ws=ws, id=last_user.id + 1, muted=room.mute_new_members)
+    room.members.append(user)
     return room
 
 
-def leave_room(ws: Ws, room_id: ROOM_ID) -> tuple[User, list[User]]:
+def leave_room(ws: Ws, room_id: ROOM_ID) -> tuple[User, Room]:
     if not (room := ROOMS.get(room_id)):
-        raise KeyError("Room not found")
+        raise KeyError("Комната не существует")
 
-    for user in room:
-        if user.ws.id == ws.id:
-            leaved_user = user
-            room.remove(user)
+    for member in room.members:
+        if member.ws.id == ws.id:
+            leaved_user = member
+            room.members.remove(member)
             break
     else:
         raise RuntimeError("You are not a member of the room")
 
-    if len(room) == 0:
+    if len(room.members) == 0:
         delete_room(room_id)
 
     return leaved_user, room
@@ -77,7 +94,7 @@ def leave_room(ws: Ws, room_id: ROOM_ID) -> tuple[User, list[User]]:
 
 def delete_room(room_id: ROOM_ID) -> bool:
     if not (room := ROOMS.get(room_id)):
-        raise KeyError("Room not found")
+        raise KeyError("Комната не существует")
     del ROOMS[room_id]
     return True
 
@@ -87,6 +104,7 @@ __all__ = [
     "create_room",
     "join_room",
     "leave_room",
+    "Room",
     "User",
     "ROOM_ID",
     "USER_ID",

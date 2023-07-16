@@ -1,7 +1,5 @@
 PyQt6==6.5.1
 qasync
-pyqt6-tools
-Pyside6
 mpv
 loguru
 requests
@@ -9,3 +7,7 @@ anilibria.py
 async-lru
 aiocsv
 aiofiles
+websockets
+
+pyqt6-tools
+Pyside6
