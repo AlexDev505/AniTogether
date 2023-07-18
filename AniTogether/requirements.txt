@@ -1,6 +1,6 @@
 PyQt6==6.5.1
 qasync
-mpv
+python-mpv
 loguru
 requests
 anilibria.py

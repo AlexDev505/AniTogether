@@ -47,7 +47,7 @@ QPushButton:pressed {
 }
 #playBtn {
 	border-radius: 40px;
-	padding-left: 5px;
+	padding-left: 2px;
 }
 
 /* SLIDER */
@@ -185,6 +185,9 @@ QSlider::handle:horizontal:pressed {
    </item>
    <item>
     <widget class="QSlider" name="playbackSlider">
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
+     </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
@@ -233,6 +236,9 @@ QSlider::handle:horizontal:pressed {
             <height>50</height>
            </size>
           </property>
+          <property name="focusPolicy">
+           <enum>Qt::NoFocus</enum>
+          </property>
           <property name="icon">
            <iconset resource="resources/icons.qrc">
             <normaloff>:/base/home.svg</normaloff>:/base/home.svg</iconset>
@@ -258,6 +264,9 @@ QSlider::handle:horizontal:pressed {
             <width>50</width>
             <height>50</height>
            </size>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::NoFocus</enum>
           </property>
           <property name="icon">
            <iconset resource="resources/icons.qrc">
@@ -299,6 +308,9 @@ QSlider::handle:horizontal:pressed {
           <width>80</width>
           <height>80</height>
          </size>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
         </property>
         <property name="icon">
          <iconset resource="resources/icons.qrc">
@@ -344,9 +356,12 @@ QSlider::handle:horizontal:pressed {
             <height>50</height>
            </size>
           </property>
+          <property name="focusPolicy">
+           <enum>Qt::NoFocus</enum>
+          </property>
           <property name="icon">
            <iconset resource="resources/icons.qrc">
-            <normaloff>:/base/volume_hidht.svg</normaloff>:/base/volume_hidht.svg</iconset>
+            <normaloff>:/base/volume_height.svg</normaloff>:/base/volume_height.svg</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -370,6 +385,15 @@ QSlider::handle:horizontal:pressed {
             <height>16777215</height>
            </size>
           </property>
+          <property name="focusPolicy">
+           <enum>Qt::NoFocus</enum>
+          </property>
+          <property name="maximum">
+           <number>10</number>
+          </property>
+          <property name="singleStep">
+           <number>1</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -388,6 +412,9 @@ QSlider::handle:horizontal:pressed {
             <width>50</width>
             <height>50</height>
            </size>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::NoFocus</enum>
           </property>
           <property name="icon">
            <iconset resource="resources/icons.qrc">
@@ -414,6 +441,9 @@ QSlider::handle:horizontal:pressed {
             <width>50</width>
             <height>50</height>
            </size>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::NoFocus</enum>
           </property>
           <property name="icon">
            <iconset resource="resources/icons.qrc">

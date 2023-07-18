@@ -40,7 +40,7 @@ class Ui_PlayerControls(object):
             "}\n"
             "#playBtn {\n"
             "    border-radius: 40px;\n"
-            "    padding-left: 5px;\n"
+            "    padding-left: 2px;\n"
             "}\n"
             "\n"
             "/* SLIDER */\n"
@@ -147,6 +147,7 @@ class Ui_PlayerControls(object):
         self.titleFrameLayout.addLayout(self.episodeLabelLayout)
         self.playerControlsLayout.addWidget(self.titleFrame)
         self.playbackSlider = QtWidgets.QSlider(parent=PlayerControls)
+        self.playbackSlider.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.playbackSlider.setOrientation(QtCore.Qt.Orientation.Horizontal)
         self.playbackSlider.setObjectName("playbackSlider")
         self.playerControlsLayout.addWidget(self.playbackSlider)
@@ -172,6 +173,7 @@ class Ui_PlayerControls(object):
         self.homeBtn = QtWidgets.QPushButton(parent=self.controlsFrame)
         self.homeBtn.setMinimumSize(QtCore.QSize(50, 50))
         self.homeBtn.setMaximumSize(QtCore.QSize(50, 50))
+        self.homeBtn.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         icon = QtGui.QIcon()
         icon.addPixmap(
             QtGui.QPixmap(":/base/home.svg"),
@@ -185,6 +187,7 @@ class Ui_PlayerControls(object):
         self.episodesBtn = QtWidgets.QPushButton(parent=self.controlsFrame)
         self.episodesBtn.setMinimumSize(QtCore.QSize(50, 50))
         self.episodesBtn.setMaximumSize(QtCore.QSize(50, 50))
+        self.episodesBtn.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         icon1 = QtGui.QIcon()
         icon1.addPixmap(
             QtGui.QPixmap(":/base/playlist.svg"),
@@ -212,6 +215,7 @@ class Ui_PlayerControls(object):
         sizePolicy.setHeightForWidth(self.playBtn.sizePolicy().hasHeightForWidth())
         self.playBtn.setSizePolicy(sizePolicy)
         self.playBtn.setMinimumSize(QtCore.QSize(80, 80))
+        self.playBtn.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         icon2 = QtGui.QIcon()
         icon2.addPixmap(
             QtGui.QPixmap(":/base/play.svg"),
@@ -235,9 +239,10 @@ class Ui_PlayerControls(object):
         self.volumeBtn = QtWidgets.QPushButton(parent=self.controlsFrame)
         self.volumeBtn.setMinimumSize(QtCore.QSize(50, 50))
         self.volumeBtn.setMaximumSize(QtCore.QSize(50, 50))
+        self.volumeBtn.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         icon3 = QtGui.QIcon()
         icon3.addPixmap(
-            QtGui.QPixmap(":/base/volume_hidht.svg"),
+            QtGui.QPixmap(":/base/volume_height.svg"),
             QtGui.QIcon.Mode.Normal,
             QtGui.QIcon.State.Off,
         )
@@ -248,12 +253,16 @@ class Ui_PlayerControls(object):
         self.volumeSlider = QtWidgets.QSlider(parent=self.controlsFrame)
         self.volumeSlider.setMinimumSize(QtCore.QSize(100, 0))
         self.volumeSlider.setMaximumSize(QtCore.QSize(100, 16777215))
+        self.volumeSlider.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+        self.volumeSlider.setMaximum(10)
+        self.volumeSlider.setSingleStep(1)
         self.volumeSlider.setOrientation(QtCore.Qt.Orientation.Horizontal)
         self.volumeSlider.setObjectName("volumeSlider")
         self.horizontalLayout_3.addWidget(self.volumeSlider)
         self.resolutionBtn = QtWidgets.QPushButton(parent=self.controlsFrame)
         self.resolutionBtn.setMinimumSize(QtCore.QSize(50, 50))
         self.resolutionBtn.setMaximumSize(QtCore.QSize(50, 50))
+        self.resolutionBtn.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         icon4 = QtGui.QIcon()
         icon4.addPixmap(
             QtGui.QPixmap(":/base/resolution_sd.svg"),
@@ -267,6 +276,7 @@ class Ui_PlayerControls(object):
         self.fullscreenBtn = QtWidgets.QPushButton(parent=self.controlsFrame)
         self.fullscreenBtn.setMinimumSize(QtCore.QSize(50, 50))
         self.fullscreenBtn.setMaximumSize(QtCore.QSize(50, 50))
+        self.fullscreenBtn.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         icon5 = QtGui.QIcon()
         icon5.addPixmap(
             QtGui.QPixmap(":/base/fullscreen.svg"),

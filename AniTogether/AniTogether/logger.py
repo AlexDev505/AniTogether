@@ -57,13 +57,14 @@ if os.environ.get("CONSOLE"):
         level=0,
     )
 
-file_logger_handler = logger.add(
-    os.environ["DEBUG_PATH"],
-    colorize=False,
-    format=formatter,
-    filter=level_handler,
-    level=6,  # Больше, чем TRACE
-)
+if DEBUG_PATH := os.environ.get("DEBUG_PATH"):
+    file_logger_handler = logger.add(
+        DEBUG_PATH,
+        colorize=False,
+        format=formatter,
+        filter=level_handler,
+        level=6,  # Больше, чем TRACE
+    )
 
 logger.level("TRACE", color="<e>")  # TRACE - синий
 logger.level("DEBUG", color="<w>")  # DEBUG - белый
