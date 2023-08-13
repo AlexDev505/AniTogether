@@ -19,14 +19,15 @@ ROOMS: dict[ROOM_ID, Room] = {}
 class User:
     ws: Ws
     id: USER_ID
-    muted: bool
 
 
 @dataclass
 class Room:
     room_id: ROOM_ID
     members: list[User]
-    mute_new_members: bool
+    title_id: int
+    episode: str
+    playing: bool = False
 
     def get_by_ws(self, ws: Ws) -> User | None:
         for member in self.members:
@@ -37,6 +38,9 @@ class Room:
         for member in self.members:
             if member.id == user_id:
                 return member
+
+    def is_hoster(self, ws: Ws) -> bool:
+        return self.members[0].ws.id == ws.id
 
 
 def generate_room_id() -> ROOM_ID:
@@ -58,9 +62,9 @@ def get_room(room_id: ROOM_ID) -> Room:
     return room
 
 
-def create_room(ws: Ws, mute_new_members: bool) -> ROOM_ID:
+def create_room(ws: Ws, title_id: int, episode: str) -> ROOM_ID:
     room_id = generate_room_id()
-    ROOMS[room_id] = Room(room_id, [User(ws=ws, id=0, muted=False)], mute_new_members)
+    ROOMS[room_id] = Room(room_id, [User(ws=ws, id=0)], title_id, episode)
     return room_id
 
 
@@ -69,17 +73,20 @@ def join_room(ws: Ws, room_id: ROOM_ID) -> Room:
         raise KeyError("Комната не существует")
 
     last_user = room.members[-1]
-    user = User(ws=ws, id=last_user.id + 1, muted=room.mute_new_members)
+    user = User(ws=ws, id=last_user.id + 1)
     room.members.append(user)
     return room
 
 
-def leave_room(ws: Ws, room_id: ROOM_ID) -> tuple[User, Room]:
+def leave_room(ws: Ws, room_id: ROOM_ID) -> tuple[User, Room, bool]:
     if not (room := ROOMS.get(room_id)):
         raise KeyError("Комната не существует")
 
-    for member in room.members:
+    hoster_changed = False
+    for i, member in enumerate(room.members):
         if member.ws.id == ws.id:
+            if i == 0:
+                hoster_changed = True
             leaved_user = member
             room.members.remove(member)
             break
@@ -88,12 +95,13 @@ def leave_room(ws: Ws, room_id: ROOM_ID) -> tuple[User, Room]:
 
     if len(room.members) == 0:
         delete_room(room_id)
+        hoster_changed = False
 
-    return leaved_user, room
+    return leaved_user, room, hoster_changed
 
 
 def delete_room(room_id: ROOM_ID) -> bool:
-    if not (room := ROOMS.get(room_id)):
+    if not ROOMS.get(room_id):
         raise KeyError("Комната не существует")
     del ROOMS[room_id]
     return True

@@ -1,10 +1,8 @@
-import asyncio
-import atexit
 import os
-import sys
-from functools import partial
 
-import qasync
+import webview
+
+from js_api import JSApi
 
 
 # CONFIG SETUP
@@ -18,59 +16,47 @@ os.environ["DEBUG_PATH"] = os.path.join(os.environ["APP_DIR"], "debug.log")
 os.environ["HISTORY_PATH"] = os.path.join(os.environ["APP_DIR"], "history.csv")
 # Версия приложения
 os.environ["VERSION"] = "0.0.0"
+# Сервер
+os.environ["HOST"] = "ws://localhost:8080/"
 
 
 from logger import logger  # noqa
-
-from main_window import MainWindow  # noqa
-
-
-# Настройка обработчика ошибок
+from web.app import app  # noqa
 
 
-@logger.catch
-def exception_hook(exception_type, value, __):
-    if exception_type is KeyboardInterrupt:
-        sys.exit()
-    raise Exception from value
+def main() -> None:
+    def _on_loaded():
+        logger.info(f"Загружена страница {window.get_current_url()}")
 
+    def _on_closed():
+        logger.info("Application closed\n\n")
 
-sys.excepthook = exception_hook
+    def _on_shown():
+        logger.info("Application started")
 
+    logger.info("Launching...")
 
-def close_future(future, loop):
-    loop.call_later(10, future.cancel)
-    future.cancel()
+    js_api = JSApi()
+    app.config["TOKEN"] = webview.token
+    window = webview.create_window(
+        "AniTogether",
+        app,
+        width=1000,
+        height=650,
+        frameless=True,
+        easy_drag=False,
+        min_size=(820, 520),
+        background_color="#000",
+        js_api=js_api,
+    )
 
+    # Добавляем обработчики событий
+    window.events.loaded += _on_loaded
+    window.events.closed += _on_closed
+    window.events.shown += _on_shown
 
-async def main():
-    logger.debug("Creating application")
-
-    loop = asyncio.get_event_loop()
-    future = asyncio.Future()
-
-    app = qasync.QApplication.instance()
-    if hasattr(app, "aboutToQuit"):
-        getattr(app, "aboutToQuit").connect(partial(close_future, future, loop))
-
-    window = MainWindow()
-    window.show()
-
-    logger.info("Starting application")
-
-    await future
-    return True
-
-
-def exit_():
-    logger.info("Application closed\n\n")
-
-
-atexit.register(exit_)
+    webview.start(debug=True)
 
 
 if __name__ == "__main__":
-    try:
-        qasync.run(main())
-    except asyncio.exceptions.CancelledError:
-        sys.exit(0)
+    main()

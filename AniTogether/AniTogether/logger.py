@@ -33,7 +33,7 @@ def update_logging_level(level: str) -> None:
 
 
 def formatter(record) -> str:
-    record["extra"]["VERSION"] = os.environ["VERSION"]
+    record["extra"]["VERSION"] = os.environ.get("VERSION", "0")
     return (
         "<lvl><n>[{level.name} </n></lvl>"
         "<g>{time:YYYY-MM-DD HH:mm:ss.SSS}</g> "

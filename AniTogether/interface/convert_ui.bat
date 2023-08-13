@@ -1,1 +1,0 @@
-pyuic6 "interface\%1.ui" -o "AniTogether\ui\%1.py"

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="{{url_for('static', filename='css/base.css')}}">
+  <script defer src="{{url_for('static', filename='js/base.js')}}"></script>
+  <script>window.token = "{{ token }}"</script>
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <div id="top-bar">
+    <div id="logo">AniTogether</div>
+    <div id="window-controls">
+      <button onclick="pywebview.api.minimize_app()">
+        <img width="10px" height="10px" src="{{url_for('static', filename='images/line.svg')}}">
+      </button>
+      <button id="win_fullscreen_btn" onclick="pywebview.api.toggle_full_screen_app()">
+        <img width="10px" height="10px" src="{{url_for('static', filename='images/window.svg')}}">
+      </button>
+      <button onclick="pywebview.api.close_app()">
+        <img width="10px" height="10px" src="{{url_for('static', filename='images/cross.svg')}}">
+      </button>
+    </div>
+  </div>
+
+  <div id="central-frame">
+    {% block body %}{% endblock %}
+  </div>
+
+  <div class="size-grip corner-grip" data-place="top-left"></div>
+  <div class="size-grip corner-grip" data-place="top-right"></div>
+  <div class="size-grip corner-grip" data-place="bottom-right"></div>
+  <div class="size-grip corner-grip" data-place="bottom-left"></div>
+  <div class="size-grip side-grip" data-place="left"></div>
+  <div class="size-grip side-grip" data-place="top"></div>
+  <div class="size-grip side-grip" data-place="right"></div>
+  <div class="size-grip side-grip" data-place="bottom"></div>
+</body>
+</html>

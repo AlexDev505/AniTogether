@@ -1,10 +1,5 @@
-PyQt6==6.5.1
-qasync
-python-mpv
-loguru
+pywebview
+flask
 requests
-anilibria.py
-async-lru
-aiocsv
-aiofiles
 websockets
+loguru

@@ -6,6 +6,7 @@ import typing as ty
 import websockets
 
 import rooms
+from loguru import logger
 
 
 if ty.TYPE_CHECKING:
@@ -14,6 +15,7 @@ if ty.TYPE_CHECKING:
 
 
 async def server(websocket: WebSocketServerProtocol):
+    logger.opt(colors=True).debug(f"New client: <r>{websocket.id}</r>")
     try:
         message = await websocket.recv()
         data: dict = json.loads(message)
@@ -25,21 +27,34 @@ async def server(websocket: WebSocketServerProtocol):
         elif data.get("command") == "join":
             await join_room(websocket, data)
         else:
-            await error(websocket, "unknown command")
+            await error(websocket, 4, "unknown command")
 
     except (json.JSONDecodeError, AssertionError):
-        await error(websocket, "Incorrect message format")
-    except websockets.ConnectionClosedOK:
+        await error(websocket, 4, "Incorrect message format")
+    except (websockets.ConnectionClosedOK, ConnectionResetError):
         pass
+    finally:
+        logger.opt(colors=True).debug(f"Client <r>{websocket.id}</r> disconnected")
 
 
 async def create_room(websocket: WebSocketServerProtocol, data: dict) -> None:
-    if not (mute_new_members := data.get("mute_new_members")):
-        return await error(websocket, "mute_new_members not passed")
-    room_id = rooms.create_room(websocket, mute_new_members)
+    if (title_id := data.get("title_id")) is None:
+        return await error(websocket, 1, "title_id not passed")
+    elif (episode := data.get("episode")) is None:
+        return await error(websocket, 1, "episode not passed")
+
+    room_id = rooms.create_room(websocket, title_id, episode)
 
     try:
-        await send(websocket, "init", room_id=room_id, me=0, members=[0])
+        await send(
+            websocket,
+            "init",
+            room_id=room_id,
+            me=0,
+            members=[0],
+            title_id=title_id,
+            episode=episode,
+        )
         await room_handler(websocket, room_id)
     finally:
         await leave_room(websocket, room_id)
@@ -47,12 +62,12 @@ async def create_room(websocket: WebSocketServerProtocol, data: dict) -> None:
 
 async def join_room(websocket: WebSocketServerProtocol, data: dict) -> None:
     if not (room_id := data.get("room_id")):
-        return await error(websocket, "room_id not passed")
+        return await error(websocket, 1, "room_id not passed")
 
     try:
         room = rooms.join_room(websocket, room_id)
     except KeyError as err:
-        raise ValueError(str(err))
+        return await error(websocket, 5, str(err))
 
     user = room.members[-1]
 
@@ -63,6 +78,8 @@ async def join_room(websocket: WebSocketServerProtocol, data: dict) -> None:
             room_id=room_id,
             me=user.id,
             members=[member.id for member in room.members],
+            title_id=room.title_id,
+            episode=room.episode,
         )
         await broadcast(websocket, room, "join", user_id=user.id)
         await room_handler(websocket, room_id)
@@ -79,8 +96,10 @@ async def room_handler(websocket: WebSocketServerProtocol, room_id: ROOM_ID) -> 
             assert type(data) is dict
             assert "command" in data
         except (json.JSONDecodeError, AssertionError):
-            await error(websocket, "Incorrect message format")
+            await error(websocket, 4, "Incorrect message format")
             continue
+
+        logger.trace(f"Command from user {websocket.id}: {data}")
 
         if data.get("command") == "pause":
             await pause(websocket, room)
@@ -88,6 +107,8 @@ async def room_handler(websocket: WebSocketServerProtocol, room_id: ROOM_ID) -> 
             await play(websocket, room, data)
         elif data.get("command") == "seek":
             await seek(websocket, room, data)
+        elif data.get("command") == "set_episode":
+            await set_episode(websocket, room, data)
         elif data.get("command") == "playback_time_request":
             await playback_time_request(websocket, room)
         elif data.get("command") == "playback_time_request_answer":
@@ -96,42 +117,61 @@ async def room_handler(websocket: WebSocketServerProtocol, room_id: ROOM_ID) -> 
             await pause_request(websocket, room)
         elif data.get("command") == "rewind_back_request":
             await rewind_back_request(websocket, room)
-        elif data.get("command") == "kick":
-            await kick(websocket, room, data)
-        elif data.get("command") == "mute":
-            await set_mute(websocket, room, data, True)
-        elif data.get("command") == "unmute":
-            await set_mute(websocket, room, data, False)
         elif data.get("command") == "leave_room":
             await leave_room(websocket, room_id)
         else:
-            await error(websocket, "unknown command")
+            await error(websocket, 4, "unknown command")
 
 
 async def pause(websocket: WebSocketServerProtocol, room: Room) -> None:
+    if not room.is_hoster(websocket):
+        return
+
+    room.playing = False
     await broadcast(websocket, room, "pause")
 
 
 async def play(websocket: WebSocketServerProtocol, room: Room, data: dict) -> None:
-    if not (send_time := data.get("time")):
-        return await error(websocket, "time not passed")
-    elif not (playback_time := data.get("playback_time")):
-        return await error(websocket, "playback_time not passed")
+    if not room.is_hoster(websocket):
+        return
 
+    if (send_time := data.get("time")) is None:
+        return await error(websocket, 1, "time not passed")
+    elif (playback_time := data.get("playback_time")) is None:
+        return await error(websocket, 1, "playback_time not passed")
+
+    room.playing = True
     await broadcast(
         websocket, room, "play", time=send_time, playback_time=playback_time
     )
 
 
 async def seek(websocket: WebSocketServerProtocol, room: Room, data: dict) -> None:
-    if not (send_time := data.get("time")):
-        return await error(websocket, "time not passed")
-    elif not (playback_time := data.get("playback_time")):
-        return await error(websocket, "playback_time not passed")
+    if not room.is_hoster(websocket):
+        return
 
+    if (send_time := data.get("time")) is None:
+        return await error(websocket, 1, "time not passed")
+    elif (playback_time := data.get("playback_time")) is None:
+        return await error(websocket, 1, "playback_time not passed")
+
+    room.playing = False
     await broadcast(
         websocket, room, "seek", time=send_time, playback_time=playback_time
     )
+
+
+async def set_episode(
+    websocket: WebSocketServerProtocol, room: Room, data: dict
+) -> None:
+    if not room.is_hoster(websocket):
+        return
+
+    if (episode := data.get("episode")) is None:
+        return await error(websocket, 3, "episode not passed")
+
+    room.episode = episode
+    await broadcast(websocket, room, "set_episode", episode=episode)
 
 
 async def playback_time_request(websocket: WebSocketServerProtocol, room: Room) -> None:
@@ -142,71 +182,50 @@ async def playback_time_request(websocket: WebSocketServerProtocol, room: Room) 
 async def playback_time_request_answer(
     websocket: WebSocketServerProtocol, room: Room, data: dict
 ) -> None:
-    if not (send_time := data.get("time")):
-        return await error(websocket, "time not passed")
-    elif not (playback_time := data.get("playback_time")):
-        return await error(websocket, "playback_time not passed")
-    elif not (user_id := data.get("user_id")):
-        return await error(websocket, "user_id not passed")
+    if not room.is_hoster(websocket):
+        return
+
+    if (send_time := data.get("time")) is None:
+        return await error(websocket, 1, "time not passed")
+    elif (playback_time := data.get("playback_time")) is None:
+        return await error(websocket, 1, "playback_time not passed")
+    elif (user_id := data.get("user_id")) is None:
+        return await error(websocket, 1, "user_id not passed")
 
     if not (user := room.get_by_id(user_id)):
-        return await error(websocket, "Пользователь не найден")
+        return await error(websocket, 2, "Пользователь не найден")
 
     await send(
         user.ws,
         "playback_time_request_answer",
         time=send_time,
         playback_time=playback_time,
+        playing=room.playing,
     )
 
 
 async def pause_request(websocket: WebSocketServerProtocol, room: Room) -> None:
     user = room.get_by_ws(websocket)
-    if user.muted:
-        return await error(websocket, "Вы не можете отправлять сигналы")
-    await send(room.members[0].ws, "pause_request")
+    await send(room.members[0].ws, "pause_request", sender=user.id)
 
 
 async def rewind_back_request(websocket: WebSocketServerProtocol, room: Room) -> None:
     user = room.get_by_ws(websocket)
-    if user.muted:
-        return await error(websocket, "Вы не можете отправлять сигналы")
-    await send(room.members[0].ws, "rewind_back_request")
-
-
-async def kick(websocket: WebSocketServerProtocol, room: Room, data: dict) -> None:
-    if not (user_id := data.get("user_id")):
-        return await error(websocket, "user_id not passed")
-
-    if not (user := room.get_by_id(user_id)):
-        return await error(websocket, "Пользователь не найден")
-
-    await broadcast(websocket, room, "kick", exclude_sender=False, user_id=user_id)
-    room.members.remove(user)
-
-
-async def set_mute(
-    websocket: WebSocketServerProtocol, room: Room, data: dict, value: bool
-) -> None:
-    if not (user_id := data.get("user_id")):
-        return await error(websocket, "user_id not passed")
-
-    if not (user := room.get_by_id(user_id)):
-        return await error(websocket, "Пользователь не найден")
-
-    user.muted = value
+    await send(room.members[0].ws, "rewind_back_request", sender=user.id)
 
 
 async def leave_room(websocket: WebSocketServerProtocol, room_id: ROOM_ID) -> None:
-    leaved_user, room = rooms.leave_room(websocket, room_id)
+    leaved_user, room, hoster_changed = rooms.leave_room(websocket, room_id)
     await broadcast(websocket, room, "leave_room", user_id=leaved_user.id)
+    if hoster_changed:
+        await send(room.members[0].ws, "hoster_promotion")
 
 
-async def error(websocket: WebSocketServerProtocol, message: str) -> None:
+async def error(websocket: WebSocketServerProtocol, code: int, message: str) -> None:
     """
     Send an error message.
     """
-    await send(websocket, "error", message=message)
+    await send(websocket, "error", code=code, message=message)
 
 
 async def broadcast(
@@ -217,14 +236,17 @@ async def broadcast(
     **data: ty.Any,
 ) -> None:
     event = dict(type=event_type, **data)
-    await websockets.broadcast(
-        (
-            member.ws
-            for member in room.members
-            if member.ws.id != websocket.id or not exclude_sender
-        ),
-        json.dumps(event),
-    )
+    try:
+        websockets.broadcast(
+            (
+                member.ws
+                for member in room.members
+                if member.ws.id != websocket.id or not exclude_sender
+            ),
+            json.dumps(event),
+        )
+    except ConnectionResetError:
+        pass
 
 
 async def send(
