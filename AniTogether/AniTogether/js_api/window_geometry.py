@@ -31,6 +31,9 @@ def resize(window: webview.Window, size_grip):
     start_width = window.width
     start_height = window.height
 
+    # Масштаб экрана(на ноутбуках обычно стоит 125%)
+    scale_k = windll.shcore.GetScaleFactorForDevice(0) / 100
+
     logger.debug(f"Resize started: {size_grip}")
 
     while True:
@@ -62,7 +65,10 @@ def resize(window: webview.Window, size_grip):
 
         if delta_x or delta_y:
             # Изменяем положение окна
-            window.move(start_win_x + delta_x, start_win_y + delta_y)
+            window.move(
+                (start_win_x + delta_x) / scale_k,
+                (start_win_y + delta_y) / scale_k,
+            )
         # Изменяем размер окна
         window.resize(start_width + delta_width, start_height + delta_height)
 
@@ -85,6 +91,9 @@ def drag_window(window: webview.Window) -> None:
     start_win_x = window.x
     start_win_y = window.y
 
+    # Масштаб экрана(на ноутбуках обычно стоит 125%)
+    scale_k = windll.shcore.GetScaleFactorForDevice(0) / 100
+
     logger.debug(f"Drag started")
 
     while True:
@@ -98,6 +107,9 @@ def drag_window(window: webview.Window) -> None:
         delta_x = current_x - start_x
         delta_y = current_y - start_y
 
-        window.move(start_win_x + delta_x, start_win_y + delta_y)
+        window.move(
+            (start_win_x + delta_x) / scale_k,
+            (start_win_y + delta_y) / scale_k,
+        )
 
         time.sleep(0.005)
