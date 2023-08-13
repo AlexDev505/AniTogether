@@ -12,7 +12,7 @@
 <div id="container">
 
 <div id="room-actions-frame">
-  <div class="room-actions-frame-item" style="padding-right: 10px">
+  <div class="room-actions-frame-item" style="padding-right: 1vw">
     <span class="room-actions-frame-item-title">
       <img src="{{url_for('static', filename='images/crown.svg')}}">
       создать комнату
@@ -25,10 +25,10 @@
       <div id="search-result-container" style="display: none"></div>
     </div>
   </div>
-  <div class="room-actions-frame-item" style="padding-left: 10px">
+  <div class="room-actions-frame-item" style="padding-left: 1vw">
     <span class="room-actions-frame-item-title">
       <img src="{{url_for('static', filename='images/group.svg')}}">
-      присоединиться к просмотру
+      подключиться к комнате
     </span>
     <div class="input-line">
       <input id="room-id-input" placeholder="Номер комнаты ..." onkeydown="if (event.key === 'Enter') {joinRoom()}">
