@@ -1,0 +1,6 @@
+pywebview
+flask
+requests
+websockets
+loguru
+pyinstaller

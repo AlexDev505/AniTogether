@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 from functools import wraps
 
 from flask import Flask, render_template, request, jsonify
@@ -8,7 +9,10 @@ from loguru import logger
 from .services import history, anilibria, tools
 
 
-ROOT_DIR = os.path.dirname(__file__)
+if getattr(sys, "frozen", False):
+    ROOT_DIR = getattr(sys, "_MEIPASS")
+else:
+    ROOT_DIR = os.path.dirname(__file__)
 
 app = Flask(
     __name__,
