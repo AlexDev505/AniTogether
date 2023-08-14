@@ -32,21 +32,21 @@ homeButtonDom.innerHTML = '<span></span>'
 homeButton.controlText("Главное меню")
 homeButtonDom.onclick = function () {window.open('/','_self')}
 
-var pauseRequestButton   = player.controlBar.addChild('button', {}, 0)
+var pauseRequestButton = player.controlBar.addChild('button', {}, 0)
 var pauseRequestButtonDom = pauseRequestButton.el()
 pauseRequestButton.addClass("custom-button vjs-pause-request-btn")
 pauseRequestButtonDom.innerHTML = '<span></span>'
 pauseRequestButton.controlText("Попросить поставить на паузу")
 pauseRequestButtonDom.onclick = sendPauseRequest
 
-var rewindRequestButton   = player.controlBar.addChild('button', {}, 0)
+var rewindRequestButton = player.controlBar.addChild('button', {}, 0)
 var rewindRequestButtonDom = rewindRequestButton.el()
 rewindRequestButton.addClass("custom-button vjs-rewind-request-btn")
 rewindRequestButtonDom.innerHTML = '<span></span>'
 rewindRequestButton.controlText("Попросить отмотать назад")
 rewindRequestButtonDom.onclick = sendRewindRequest
 
-var synchronizeButton   = player.controlBar.addChild('button', {}, 0)
+var synchronizeButton = player.controlBar.addChild('button', {}, 0)
 var synchronizeButtonDom = synchronizeButton.el()
 synchronizeButton.addClass("custom-button vjs-synchronize-btn")
 synchronizeButtonDom.innerHTML = '<span></span>'
@@ -349,7 +349,7 @@ websocket.addEventListener("message", ({ data }) => {
           onError(event)
           break
         default:
-          throw new Error(`Unsupported event type: ${event.type}.`)
+          throw new Error(`Unsupported event type: ${vent.type}.`)
     }
 })
 function onInit(data) {

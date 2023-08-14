@@ -45,7 +45,10 @@ def add_header(response):
 @app.route("/")
 def index():
     return render_template(
-        "home.html", token=app.config["TOKEN"], history=history.load()
+        "home.html",
+        token=app.config["TOKEN"],
+        history=history.load(),
+        version=os.environ["VERSION"],
     )
 
 

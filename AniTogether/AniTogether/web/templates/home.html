@@ -7,6 +7,15 @@
 
 {% endblock %}
 
+
+{% block window_controls %}
+
+<button id="about-btn">
+  <img width="10px" height="10px" src="{{url_for('static', filename='images/about.svg')}}">
+</button>
+
+{% endblock %}
+
 {% block body %}
 
 <div id="container">
@@ -74,6 +83,19 @@
   </div>
 </div>
 
+</div>
+
+<div id="about-overlay" class="overlay" style="transform: translateX(100%);">
+  <div id="about-overlay-bg" class="overlay-bg"></div>
+  <div id="about-overlay-content" class="overlay-content">
+    <div id="app-title">
+      <div>AniTogether</div>
+      <div id="version">версия: {{version}}</div>
+    </div>
+    <div>Анилибрия: <a href="https://anilibria.tv" target="_blank">https://anilibria.tv</a></div>
+    <div>Исходный код:  <a href="https://github.com/AlexDev505/AniTogether" target="_blank">github</a></div>
+    <div id="dsc">Весь материал в приложении представлен исключительно для домашнего ознакомительного просмотра.</div>
+  </div>
 </div>
 
 {% endblock %}

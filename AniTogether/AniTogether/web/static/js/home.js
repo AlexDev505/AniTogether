@@ -12,12 +12,6 @@ function onLoadPosterForHistoryItem(response) {
     }
 }
 
-window.addEventListener("DOMContentLoaded", (event) => {
-    for (title_id of title_ids) {
-        doAjax("/api/get_title_poster_url", "POST", onLoadPosterForHistoryItem, {"title_id": title_id});
-    }
-})
-
 function delay(time) {
     return new Promise(resolve => setTimeout(resolve, time));
 }
@@ -87,3 +81,23 @@ function joinRoom() {
         return
     window.open(`/watch?room_id=${room_id}`,'_self')
 }
+
+function showAboutOverlay() {
+    document.getElementById("about-overlay").style = "transition: transform 0s; transform: translateX(0%);"
+    document.getElementById("about-overlay-content").style = "transition: transform 0.3s; transform: translateX(0%);"
+    document.getElementById("about-overlay-bg").style.display = "flex"
+}
+function hideAboutOverlay() {
+    document.getElementById("about-overlay").style = "transition: transform 0.3s; transform: translateX(100%);"
+    document.getElementById("about-overlay-content").style = "transition: transform 1s; transform: translateX(100%);"
+    document.getElementById("about-overlay-bg").style.display = "none"
+}
+
+window.addEventListener("DOMContentLoaded", (event) => {
+    for (title_id of title_ids) {
+        doAjax("/api/get_title_poster_url", "POST", onLoadPosterForHistoryItem, {"title_id": title_id});
+    }
+    document.getElementById("about-overlay-bg").onclick = hideAboutOverlay
+    document.getElementById("about-btn").onclick = showAboutOverlay
+    hideAboutOverlay()
+})

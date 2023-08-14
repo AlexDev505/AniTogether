@@ -11,6 +11,7 @@
   <div id="top-bar">
     <div id="logo">AniTogether</div>
     <div id="window-controls">
+      {% block window_controls %}{% endblock %}
       <button onclick="pywebview.api.minimize_app()">
         <img width="10px" height="10px" src="{{url_for('static', filename='images/line.svg')}}">
       </button>
