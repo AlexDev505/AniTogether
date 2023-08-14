@@ -440,8 +440,7 @@ function onRewindRequest(data) {
         addRewindRequestCard(data.sender)
 }
 function onError(data) {
-    console.log(data)
-    if (data.code == 5)
+    if (data.code == 1)  // Room does not exist
         if (title_id) {
             window.open(`/watch?title_id=${title_id}&episode=${episode}`,'_self')
         } else {

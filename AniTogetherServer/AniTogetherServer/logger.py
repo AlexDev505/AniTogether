@@ -1,14 +1,7 @@
-from __future__ import annotations
-
 import os
+
 import sys
-import typing as ty
-
 from loguru import logger
-
-
-if ty.TYPE_CHECKING:
-    pass
 
 
 try:  # Удаление настроек логгера по умолчанию
@@ -22,7 +15,6 @@ def formatter(_) -> str:
         "<lvl><n>[{level.name} </n></lvl>"
         "<g>{time:YYYY-MM-DD HH:mm:ss.SSS}</g>"
         "<lvl><n>]</n></lvl> "
-        "<w>{thread.name}:{module}.{function}</w>: "
         "<lvl><n>{message}</n></lvl>\n{exception}"
     )
 

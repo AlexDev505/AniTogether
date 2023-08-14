@@ -11,7 +11,6 @@ from server import server
 
 async def health_check(path: str, _request_headers):
     if path == "/healthz":
-        logger.info("health check: OK")
         return (
             http.HTTPStatus.OK,
             {"Access-Control-Allow-Origin": "*"},
