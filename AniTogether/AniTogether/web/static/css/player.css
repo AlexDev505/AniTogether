@@ -304,3 +304,14 @@ input[type="checkbox"]:checked::before {
 .request-card:not(:last-child) {
   margin-bottom: 4px;
 }
+#room-loading {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgb(30,30,30);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}

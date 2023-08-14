@@ -359,6 +359,7 @@ function onInit(data) {
     }
     me = data.me
     document.getElementById("room-id").innerHTML = room_id
+    document.getElementById("room-loading").remove()
     for (member of Object.keys(members)) {
         if (member != me)
             addMemberElement(member)
