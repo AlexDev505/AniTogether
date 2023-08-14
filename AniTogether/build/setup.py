@@ -11,7 +11,7 @@ import shutil
 
 import PyInstaller.__main__
 
-__version__ = "1.0.0-alpha.1"
+__version__ = "1.0.0-alpha.2"
 
 dev_path = os.path.join(os.path.dirname(__file__), "..", "AniTogether")
 run_file_path = os.path.join(dev_path, "main.py")
@@ -26,22 +26,13 @@ with open(run_file_path, "w", encoding="utf-8") as file:
     file.write(text)
 
 # Изменяем версию в установщике
-# with open("installer.nsi") as file:
-#     text = file.read()
-# text = re.sub(
-#     r'!define PRODUCT_VERSION ".+"', f'!define PRODUCT_VERSION "{__version__}"', text
-# )
-# with open("installer.nsi", "w") as file:
-#     file.write(text)
-
-# Изменяем версию в файле обновления
-# with open("updater.nsi") as file:
-#     text = file.read()
-# text = re.sub(
-#     r'!define PRODUCT_VERSION ".+"', f'!define PRODUCT_VERSION "{__version__}"', text
-# )
-# with open("updater.nsi", "w") as file:
-#     file.write(text)
+with open("installer.nsi") as file:
+    text = file.read()
+text = re.sub(
+    r'!define PRODUCT_VERSION ".+"', f'!define PRODUCT_VERSION "{__version__}"', text
+)
+with open("installer.nsi", "w") as file:
+    file.write(text)
 
 # Изменяем версию в version_file
 with open(r"sources/version_file") as file:
@@ -62,14 +53,14 @@ PyInstaller.__main__.run(
         "-D",
         "-n=AniTogether",
         f"--version-file=version_file",
-        # "--icon=icon.ico",
+        "--icon=icon.ico",
         "--distpath=.",
         "--workpath=temp",
         "--specpath=sources",
         "-y",
         "--clean",
         # "-w",
-        "--onefile",
+        # "--onefile",
         f"--add-data={os.path.join(dev_path, 'web', 'static')};static",
         f"--add-data={os.path.join(dev_path, 'web', 'templates')};templates",
     ]

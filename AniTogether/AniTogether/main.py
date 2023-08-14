@@ -15,7 +15,7 @@ os.environ["DEBUG_PATH"] = os.path.join(os.environ["APP_DIR"], "debug.log")
 # Путь к файлу истории просмотра
 os.environ["HISTORY_PATH"] = os.path.join(os.environ["APP_DIR"], "history.csv")
 # Версия приложения
-os.environ["VERSION"] = "1.0.0-alpha.1"
+os.environ["VERSION"] = "1.0.0-alpha.2"
 # Сервер
 # os.environ["HOST"] = "ws://localhost:8080/"
 os.environ["HOST"] = "wss://anitogetherserver.onrender.com"
