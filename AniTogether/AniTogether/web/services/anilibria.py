@@ -5,11 +5,7 @@ import orjson
 import requests
 from loguru import logger
 
-<<<<<<<<< Temporary merge branch 1
-from AniTogether.web.services.tools import pretty_view
-=========
 from .tools import pretty_view
->>>>>>>>> Temporary merge branch 2
 
 
 DARKLIBRIA_URL = "https://darklibria.it/redirect/mirror/1"
