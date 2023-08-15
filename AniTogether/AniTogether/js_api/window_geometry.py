@@ -56,12 +56,14 @@ def resize(window: webview.Window, size_grip):
             delta_y = current_y - start_y
             delta_height = -delta_y
             if start_height + delta_height < window.min_size[1]:
-                continue
+                delta_height = window.min_size[1] - start_height
+                delta_y = -delta_height
         if "left" in size_grip:
             delta_x = current_x - start_x
             delta_width = -delta_x
             if start_width + delta_width < window.min_size[0]:
-                continue
+                delta_width = window.min_size[0] - start_width
+                delta_x = -delta_width
 
         if delta_x or delta_y:
             # Изменяем положение окна
