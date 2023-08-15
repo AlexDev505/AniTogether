@@ -5,6 +5,7 @@ class Overlay {
         this.content = el.querySelector(".overlay-content")
         this.bg = document.createElement("div")
         this.bg.classList.add("overlay-bg")
+        this.onopen = null
         el.insertBefore(this.bg, this.content)
 
         if (!el.dataset.unclosable)
@@ -22,6 +23,8 @@ class Overlay {
             this.content.style = "transition: transform 0.3s; transform: scale(1);"
         }
         this.bg.style.display = "flex"
+        if (this.onopen)
+            this.onopen()
     }
     hide() {
         if (this.align == "right") {

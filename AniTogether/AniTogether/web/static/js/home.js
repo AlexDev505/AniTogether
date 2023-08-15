@@ -110,6 +110,12 @@ function onRoomReady(response) {
     }
 }
 
+last_release_version = ""
+overlay("version-overlay").onopen = getLastReleaseVersion
+function getLastReleaseVersion() {
+    "https://api.github.com/repos/AlexDev505/AniTogether/releases"
+}
+
 window.addEventListener("DOMContentLoaded", (event) => {
     for (title_id of title_ids) {
         doAjax("/api/get_title_poster_url", "POST", onLoadPosterForHistoryItem, {"title_id": title_id});
