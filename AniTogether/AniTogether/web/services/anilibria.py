@@ -1,21 +1,19 @@
-import re
+import json
 import typing as ty
 
-import orjson
 import requests
 from loguru import logger
 
 from .tools import pretty_view
 
 
-DARKLIBRIA_URL = "https://darklibria.it/redirect/mirror/1"
 STORAGE_URL = "https://static.wwnd.space"
-api_url = "https://api.anilibria.tv/v3"
+API_URL = "https://api.anilibria.tv/v3"
 
 
 class AnilibriaError(Exception):
     def __init__(self, code: int, message: str = ""):
-        super().__init__(f"[{code}] {message}")
+        super().__init__(f"code: {code}; message: {message}")
         self.code = code
         self.message = message
 
@@ -24,57 +22,29 @@ class AnilibriaApiError(AnilibriaError):
     pass
 
 
-class AnilibriaMirrorError(AnilibriaError):
+class AnilibriaResourceError(AnilibriaError):
     pass
 
 
-def get_mirror_url() -> str:
-    try:
-        response = requests.get(DARKLIBRIA_URL)
-        if response.status_code != 200:
-            raise AnilibriaMirrorError(response.status_code, "Mirror updating failed")
-        response = response.text
-        if not (match := re.search(r'<link rel="canonical" href="(.+)"/>', response)):
-            raise AnilibriaMirrorError(2, "Could not find mirror link")
-        return match.group(1) + "/api/v3"
-    except requests.exceptions.SSLError:
-        raise AnilibriaMirrorError(1, "Darklibria unavailable: SSLError")
-    except requests.exceptions.RequestException as err:
-        raise AnilibriaMirrorError(0, f"Darklibria unavailable: {type(err).__name__}")
-
-
-def _send_request(query: str, *, _retries: int = 0, **data: ty.Any) -> dict:
-    global api_url
-
+def _send_request(query: str, **data: ty.Any) -> dict:
     logger.opt(colors=True).debug(
         f"Anilibria request: <r>{query}</r> with params {pretty_view(data)}"
     )
-
     try:
-        response = requests.get(f"{api_url}{query}", params=data)
-    except requests.exceptions.SSLError:
-        err = AnilibriaApiError(1, f"Anilibria({api_url}) unavailable: SSLError")
-        if _retries == 3:
-            raise err
-        else:
-            logger.error(f"{type(err).__name__}: {str(err)}")
+        response = requests.get(f"{API_URL}{query}", params=data).json()
+    except (requests.exceptions.RequestException, json.JSONDecodeError):
+        raise AnilibriaApiError(0, "Anilibria api unavailable")
+    if "error" in response:
+        raise AnilibriaApiError(response["error"]["code"], response["error"]["message"])
+    return response
 
-        api_url = get_mirror_url()
-        return _send_request(query, **data, _retries=_retries + 1)
-    except requests.exceptions.RequestException as err:
-        raise AnilibriaApiError(
-            0, f"Anilibria({api_url}) unavailable: {type(err).__name__}"
-        )
 
-    try:
-        data = orjson.loads(response.text)
-    except orjson.JSONDecodeError:
-        raise AnilibriaApiError(2, f"Unable to read response: {response.text}")
-
-    if "error" in data:
-        raise AnilibriaApiError(data["error"]["code"], data["error"]["message"])
-
-    return data
+def _download_resource(url: str) -> bytes:
+    logger.opt(colors=True).debug(f"Anilibria resource downloading: <r>{url}</r>")
+    response = requests.get(f"{STORAGE_URL}{url}")
+    if response.status_code != 200:
+        raise AnilibriaResourceError(response.status_code, "Resource unavailable")
+    return response.content
 
 
 def get_title(title_id) -> dict:
@@ -84,3 +54,8 @@ def get_title(title_id) -> dict:
 def search_titles(query: str, items_per_page: int = 10) -> list[dict]:
     result = _send_request("/title/search", search=query, items_per_page=items_per_page)
     return result["list"]
+
+
+def get_poster(title: dict, size: PosterSize = PosterSize.ORIGINAL) -> bytes:
+    poster_url = title["posters"][size.value]["url"]
+    return _download_resource(poster_url)
