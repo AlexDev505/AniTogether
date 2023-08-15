@@ -10,23 +10,25 @@
 <script defer src="{{url_for('static', filename='js/player.js')}}"></script>
 <script>
 var anilibria_storage_url = "{{ anilibria_storage_url }}"
+var room_id = "{{ room_id }}"
 var title = {{ title | tojson | safe }}
-var title_id = {{ title_id|tojson }}
 var episode = "{{ episode }}"
 var resolution = "{{ resolution }}"
 var host = "{{ host }}"
-var hoster = {{ hoster|tojson }}
-var room_id = "{{ room_id }}"
 </script>
 
 {% endblock %}
 
 {% block body %}
 
+<div id="room-loading">
+  <div class="pulse-animation"></div>
+  <img src="{{url_for('static', filename='images/loading.gif')}}">
+</div>
+
 <video id="my-video" class="video-js vjs" controls muted preload="auto" data-setup="{}"></video>
 
-<div id="episodes-overlay" class="overlay" style="transform: translateX(-100%);">
-  <div id="episodes-overlay-bg" class="overlay-bg"></div>
+<div id="episodes-overlay" class="overlay" data-align="left">
   <div id="episodes-overlay-content" class="overlay-content">
     <div class="overlay-title">Эпизоды</div>
     <div id="episodes-list">
@@ -34,8 +36,7 @@ var room_id = "{{ room_id }}"
   </div>
 </div>
 
-<div id="room-overlay" class="overlay" style="transform: translateX(-100%);">
-  <div id="room-overlay-bg" class="overlay-bg"></div>
+<div id="room-overlay" class="overlay" data-align="left">
   <div id="room-overlay-content" class="overlay-content">
     <div class="overlay-title">
       Комната № <span id="room-id" onclick="navigator.clipboard.writeText(this.innerHTML)"></span>
@@ -46,14 +47,9 @@ var room_id = "{{ room_id }}"
       <label class="checkbox"><input type="checkbox" id="mute-new-members" onchange="setMuteNewMembers(this.checked)">Заглушать новых участников</label>
     </div>
     <hr>
-
     <div id="members-list-container">
       <div id="member-list-title">Участники</div>
       <div id="members-list"></div>
-    </div>
-    <div id="room-loading">
-      подготовка комнаты<br>
-      пожалуйста, подождите...
     </div>
   </div>
 </div>

@@ -3,7 +3,7 @@ import os
 import sys
 from functools import wraps
 
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, redirect, request, jsonify
 from loguru import logger
 
 from .services import history, anilibria, tools
@@ -44,10 +44,14 @@ def add_header(response):
 
 @app.route("/")
 def index():
+    data = request.args.to_dict()
+    info = data.get("info", "")
     return render_template(
         "home.html",
         token=app.config["TOKEN"],
         history=history.load(),
+        info=info,
+        host=os.environ["HOST"],
         version=os.environ["VERSION"],
     )
 
@@ -61,44 +65,21 @@ def watch():
     if episode in {None, "0"}:
         episode = "1"
 
-    if room_id:
-        return join_to_room(room_id, title_id, episode)
-    return create_room(title_id, episode)
-
-
-def create_room(title_id, episode):
     try:
         title = anilibria.get_title(title_id)
         logger.opt(colors=True).trace(tools.trace_title_data(title))
         logger.opt(colors=True).debug(tools.debug_title_data(title))
     except anilibria.AnilibriaError as err:
         logger.error(f"{type(err).__name__}: {str(err)}")
-        return jsonify(dict(status="error", msg=str(err), title_id=title_id))
+        return redirect(f"/?info={str(err)}")
 
     return render_template(
         "player.html",
         token=app.config["TOKEN"],
         title=title,
-        title_id=title_id,
         episode=episode,
         resolution="hd",
         host=os.environ["HOST"],
-        hoster=True,
-        room_id="",
-        anilibria_storage_url=anilibria.STORAGE_URL,
-    )
-
-
-def join_to_room(room_id, title_id: int | None, episode: str | None):
-    return render_template(
-        "player.html",
-        token=app.config["TOKEN"],
-        title={},
-        title_id=title_id,
-        episode=episode or "",
-        resolution="hd",
-        host=os.environ["HOST"],
-        hoster=False,
         room_id=room_id,
         anilibria_storage_url=anilibria.STORAGE_URL,
     )
@@ -114,7 +95,7 @@ def get_title_poster_url():
         title = anilibria.get_title(title_id)
     except anilibria.AnilibriaError as err:
         logger.error(f"{type(err).__name__}: {str(err)}")
-        return jsonify(dict(status="error", msg=str(err), title_id=title_id))
+        return jsonify(dict(status="error", message=str(err), title_id=title_id))
 
     poster_url = anilibria.STORAGE_URL + title["posters"]["original"]["url"]
 
@@ -133,7 +114,7 @@ def get_title():
         logger.opt(colors=True).debug(tools.debug_title_data(title))
     except anilibria.AnilibriaError as err:
         logger.error(f"{type(err).__name__}: {str(err)}")
-        return jsonify(dict(status="error", msg=str(err), title_id=title_id))
+        return jsonify(dict(status="error", message=str(err), title_id=title_id))
 
     return jsonify(dict(status="ok", title=title))
 
@@ -148,7 +129,7 @@ def search_titles():
         titles = anilibria.search_titles(query)
     except anilibria.AnilibriaError as err:
         logger.error(f"{type(err).__name__}: {str(err)}")
-        return jsonify(dict(status="error", msg=str(err), query=query))
+        return jsonify(dict(status="error", message=str(err), query=query))
 
     titles = [
         dict(

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import secrets
 import typing as ty
 from dataclasses import dataclass
@@ -72,16 +73,15 @@ def get_room(room_id: ROOM_ID) -> Room:
     return room
 
 
-def create_room(ws: Ws, title_id: int, episode: str) -> ROOM_ID:
+def create_room(title_id: int, episode: str) -> ROOM_ID:
     """
     Создает новую комнату.
     :return: Идентификатор комнаты.
     """
     room_id = generate_room_id()
-    ROOMS[room_id] = Room(room_id, [User(ws=ws, id=0)], title_id, episode)
-    logger.opt(colors=True).debug(
-        f"Client <r>{ws.id}</r> created room <y>{room_id}</y>"
-    )
+    ROOMS[room_id] = Room(room_id, [], title_id, episode)
+    logger.opt(colors=True).debug(f"New room <y>{room_id}</y>")
+    asyncio.create_task(delete_later(room_id))
     return room_id
 
 
@@ -93,8 +93,8 @@ def join_to_room(ws: Ws, room_id: ROOM_ID) -> Room:
     if not (room := ROOMS.get(room_id)):
         raise RoomDoesNotExists()
 
-    last_user = room.members[-1]
-    user = User(ws=ws, id=last_user.id + 1)
+    user_id = 0 if not room.members else room.members[-1].id + 1
+    user = User(ws=ws, id=user_id)
     room.members.append(user)
     logger.opt(colors=True).debug(
         f"Client <r>{ws.id}</r> joined to room <y>{room_id}</y>"
@@ -128,7 +128,7 @@ def leave_room(ws: Ws, room_id: ROOM_ID) -> tuple[User, Room, bool]:
         raise UserNotAMemberOfRoom()
 
     if len(room.members) == 0:
-        delete_room(room_id)
+        asyncio.create_task(delete_later(room_id))
         hoster_changed = False
 
     return leaved_user, room, hoster_changed
@@ -143,6 +143,13 @@ def delete_room(room_id: ROOM_ID):
         raise RoomDoesNotExists()
     logger.opt(colors=True).debug(f"Room <y>{room_id}</y> deleted")
     del ROOMS[room_id]
+
+
+async def delete_later(room_id: ROOM_ID) -> None:
+    await asyncio.sleep(30)
+    if room := ROOMS.get(room_id):
+        if not room.members:
+            delete_room(room_id)
 
 
 __all__ = [

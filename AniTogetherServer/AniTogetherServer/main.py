@@ -1,21 +1,12 @@
 import asyncio
-import http
 import os
 import signal
 
 import websockets
 
 from logger import logger
-from server import server
-
-
-async def health_check(path: str, _request_headers):
-    if path == "/healthz":
-        return (
-            http.HTTPStatus.OK,
-            {"Access-Control-Allow-Origin": "*"},
-            b"OK\n",
-        )
+from ws_server import ws_handler
+from http_server import http_handler
 
 
 async def main():
@@ -27,7 +18,7 @@ async def main():
         stop = asyncio.Future()
 
     port = int(os.environ.get("PORT", "8001"))
-    async with websockets.serve(server, "", port, process_request=health_check):
+    async with websockets.serve(ws_handler, "", port, process_request=http_handler):
         logger.info("Server started")
         await stop  # Запуск бесконечного цикла
 

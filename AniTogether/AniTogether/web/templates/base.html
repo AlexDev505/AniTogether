@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <link rel="stylesheet" href="{{url_for('static', filename='css/base.css')}}">
+  <link rel="stylesheet" href="{{url_for('static', filename='css/overlays.css')}}">
   <script defer src="{{url_for('static', filename='js/base.js')}}"></script>
   <script>window.token = "{{ token }}"</script>
   {% block head %}{% endblock %}
@@ -27,6 +28,8 @@
   <div id="central-frame">
     {% block body %}{% endblock %}
   </div>
+
+  <script src="{{url_for('static', filename='js/overlays.js')}}"></script>
 
   <div class="size-grip corner-grip" data-place="top-left"></div>
   <div class="size-grip corner-grip" data-place="top-right"></div>

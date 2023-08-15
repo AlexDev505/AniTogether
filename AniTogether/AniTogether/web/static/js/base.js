@@ -64,3 +64,10 @@ function doAjax(url, method, responseHandler, data)
         alert("Please use browser with Ajax support.!");
     }
 }
+
+function getHttpHost(host) {
+    return `${(host.includes("localhost"))? 'http' : 'https'}` + '://' + host
+}
+function getWsHost(host) {
+    return `${(host.includes("localhost"))? 'ws' : 'wss'}` + '://' + host
+}

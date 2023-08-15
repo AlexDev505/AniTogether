@@ -1,5 +1,5 @@
-var player = videojs('my-video')
-const websocket = new WebSocket(host);
+const player = videojs('my-video')
+const websocket = new WebSocket(getWsHost(host));
 
 window.onkeydown = function(e){
     if (e.code == "Space")
@@ -58,40 +58,14 @@ var playlistButtonDom = playlistButton.el()
 playlistButton.addClass("custom-button vjs-playlist-btn")
 playlistButtonDom.innerHTML = '<span></span>'
 playlistButton.controlText("Список эпизодов")
-playlistButtonDom.onclick = showEpisodesOverlay
-
-function showEpisodesOverlay() {
-    document.getElementById("episodes-overlay").style = "transition: transform 0s; transform: translateX(0%);"
-    document.getElementById("episodes-overlay-content").style = "transition: transform 0.3s; transform: translateX(0%);"
-    document.getElementById("episodes-overlay-bg").style.display = "flex"
-}
-function hideEpisodesOverlay() {
-    document.getElementById("episodes-overlay").style = "transition: transform 0.3s; transform: translateX(-100%);"
-    document.getElementById("episodes-overlay-content").style = "transition: transform 1s; transform: translateX(-100%);"
-    document.getElementById("episodes-overlay-bg").style.display = "none"
-}
-document.getElementById("episodes-overlay-bg").onclick = hideEpisodesOverlay
-hideEpisodesOverlay()
+playlistButtonDom.onclick = () => {overlay("episodes-overlay").show()}
 
 var roomButton = player.controlBar.addChild('button', {}, 0)
 var roomButtonDom = roomButton.el()
 roomButton.addClass("custom-button vjs-room-btn")
 roomButtonDom.innerHTML = '<span></span>'
 roomButton.controlText("Меню комнаты")
-roomButtonDom.onclick = showRoomOverlay
-
-function showRoomOverlay() {
-    document.getElementById("room-overlay").style = "transition: transform 0s; transform: translateX(0%);"
-    document.getElementById("room-overlay-content").style = "transition: transform 0.3s; transform: translateX(0%);"
-    document.getElementById("room-overlay-bg").style.display = "flex"
-}
-function hideRoomOverlay() {
-    document.getElementById("room-overlay").style = "transition: transform 0.3s; transform: translateX(-100%);"
-    document.getElementById("room-overlay-content").style = "transition: transform 1s; transform: translateX(-100%);"
-    document.getElementById("room-overlay-bg").style.display = "none"
-}
-document.getElementById("room-overlay-bg").onclick = hideRoomOverlay
-hideRoomOverlay()
+roomButtonDom.onclick = () => {overlay("room-overlay").show()}
 
 var resolutionButton = player.controlBar.addChild('button', {}, 0)
 var resolutionButtonDom = resolutionButton.el()
@@ -198,11 +172,9 @@ function initEpisode(episode_number) {
 var members = {}
 var me = -1
 var mute_new_members = false
+var hoster = false
 lastRequest = 0
 
-function showMessage(message) {
-  window.setTimeout(() => window.alert(message), 50);
-}
 function setMuteNewMembers(value) {
     mute_new_members = value
 }
@@ -353,25 +325,30 @@ websocket.addEventListener("message", ({ data }) => {
     }
 })
 function onInit(data) {
-    room_id = data.room_id
     for (member of data.members) {
         members[member] = mute_new_members
     }
     me = data.me
+    hoster = me == members[0]
+
     document.getElementById("room-id").innerHTML = room_id
-    document.getElementById("room-loading").remove()
     for (member of Object.keys(members)) {
         if (member != me)
             addMemberElement(member)
     }
 
     if (hoster) {
-        history.pushState({}, null, "/watch?title_id=9419&episode=0&room_id="+room_id);
-        return
+        history.pushState({}, null, "/watch?title_id=9419&episode=0&room_id="+room_id)
+        playlistButton.show()
+        roomButton.show()
+    } else {
+        websocket.send(JSON.stringify({"command": "playback_time_request"}))
+        synchronizeButton.show()
+        pauseRequestButton.show()
+        rewindRequestButton.show()
     }
-    title_id = data.title_id
-    episode = data.episode
-    doAjax("/api/get_title", "POST", onTitleLoaded, {"title_id": title_id})
+
+    document.getElementById("room-loading").remove()
 }
 function onJoin(data) {
     members[data.user_id] = mute_new_members
@@ -442,47 +419,20 @@ function onRewindRequest(data) {
 }
 function onError(data) {
     if (data.code == 1)  // Room does not exist
-        if (title_id) {
-            window.open(`/watch?title_id=${title_id}&episode=${episode}`,'_self')
-        } else {
-            window.open('/','_self')
-        }
+        window.open('/','_self')
 }
 
-function hosterInit() {
+function init() {
     initTitle()
     initEpisode(episode)
     websocket.addEventListener("open", () => {
-        websocket.send(JSON.stringify({"command": "create", "title_id": title.id, "episode": episode}))
+        websocket.send(JSON.stringify({"command": "join", "room_id": room_id}))
     });
     pauseRequestButton.hide()
     rewindRequestButton.hide()
     synchronizeButton.hide()
-}
-
-function guestInit() {
-    history.pushState({}, null, "/watch?room_id="+room_id);
-    websocket.addEventListener("open", () => {
-        websocket.send(JSON.stringify({"command": "join", "room_id": room_id}))
-    });
     playlistButton.hide()
     roomButton.hide()
 }
-function onTitleLoaded(response) {
-    if (this.responseText) {
-        response = JSON.parse(this.responseText)
-        if (response.status != "ok") {
-            console.log(`Title "${response.title_id}" not found. ${response.msg}`)
-            return
-        }
-        title = response.title
-        initTitle()
-        initEpisode(episode)
-        websocket.send(JSON.stringify({"command": "playback_time_request"}))
-    }
-}
 
-if (hoster)
-    hosterInit()
-else
-    guestInit()
+init()

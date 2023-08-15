@@ -3,12 +3,12 @@ var title_ids = []
 function onLoadPosterForHistoryItem(response) {
     if (this.responseText) {
         response = JSON.parse(this.responseText)
-        if (response["status"] != "ok") {
-            console.log(`Loading poster for title ${response['title_id']} failed. ${response['msg']}`)
+        if (response.status != "ok") {
+            console.log(`Loading poster for title ${response.title_id} failed. ${response.message}`)
             return
         }
-        style = "background-image: url(" + response["poster_url"] + ")"
-        document.getElementById("poster-" + response["title_id"]).style = style
+        style = "background-image: url(" + response.poster_url + ")"
+        document.getElementById("poster-" + response.title_id).style = style
     }
 }
 
@@ -53,19 +53,19 @@ function showSearchAnimation() {
 function onSearchTitles(response) {
     if (this.responseText) {
         response = JSON.parse(this.responseText)
-        if (response["status"] != "ok") {
-            console.log(`Searching "${response['query']}" failed. ${response['msg']}`)
+        if (response.status != "ok") {
+            console.log(`Searching "${response.query}" failed. ${response.msg}`)
             return
         }
-        if (response["query"] != document.getElementById("search-release").value)
+        if (response.query != document.getElementById("search-release").value)
             return
         html = ""
-        for (title of response["titles"]) {
-            html = html + `\n<div class="search-result-item" onmousedown="window.open('/watch?title_id=${title['id']}','_self')">
-              <div class="search-result-item-poster" style="background-image: url(${title['poster']})"></div>
+        for (title of response.titles) {
+            html = html + `\n<div class="search-result-item" onmousedown="createRoom(${title.id})">
+              <div class="search-result-item-poster" style="background-image: url(${title.poster})"></div>
               <div class="search-result-item-title">
-                <div class="search-result-item-title-ru">${title['name_ru']}</div>
-                <div class="search-result-item-title-alt">${title['name_alt']}</div>
+                <div class="search-result-item-title-ru">${title.name_ru}</div>
+                <div class="search-result-item-title-alt">${title.name_alt}</div>
               </div>
             </div>`
         }
@@ -75,29 +75,46 @@ function onSearchTitles(response) {
     }
 }
 
+function createRoom(title_id, episode="0") {
+    document.getElementById("loading-text").innerHTML = "создание комнаты"
+    overlay("loading-overlay").show()
+    doAjax(
+        `${getHttpHost(host)}/create_room?title_id=${title_id}&episode=${episode}`,
+        "GET", onRoomReady, {}
+    )
+}
 function joinRoom() {
     room_id = document.getElementById("room-id-input").value
     if (!room_id)
         return
-    window.open(`/watch?room_id=${room_id}`,'_self')
-}
 
-function showAboutOverlay() {
-    document.getElementById("about-overlay").style = "transition: transform 0s; transform: translateX(0%);"
-    document.getElementById("about-overlay-content").style = "transition: transform 0.3s; transform: translateX(0%);"
-    document.getElementById("about-overlay-bg").style.display = "flex"
+    document.getElementById("loading-text").innerHTML = "поиск комнаты"
+    overlay("loading-overlay").show()
+    doAjax(`${getHttpHost(host)}/get_room?room_id=${room_id}`, "GET", onRoomReady, {})
 }
-function hideAboutOverlay() {
-    document.getElementById("about-overlay").style = "transition: transform 0.3s; transform: translateX(100%);"
-    document.getElementById("about-overlay-content").style = "transition: transform 1s; transform: translateX(100%);"
-    document.getElementById("about-overlay-bg").style.display = "none"
+function onRoomReady(response) {
+    overlay("loading-overlay").hide()
+    if (this.responseText) {
+        response = JSON.parse(this.responseText)
+        if (response.status != "ok") {
+            console.log(`Creating room failed: [${response.code}] ${response.message}`)
+            if (response.code == 1)
+                document.getElementById("info-text").innerHTML = "такой комнаты не существует"
+                overlay("info-overlay").show()
+            return
+        }
+        window.open(
+            `/watch?title_id=${response.title_id}&episode=${response.episode}&room_id=${response.room_id}`,
+            '_self'
+        )
+    }
 }
 
 window.addEventListener("DOMContentLoaded", (event) => {
     for (title_id of title_ids) {
         doAjax("/api/get_title_poster_url", "POST", onLoadPosterForHistoryItem, {"title_id": title_id});
     }
-    document.getElementById("about-overlay-bg").onclick = hideAboutOverlay
-    document.getElementById("about-btn").onclick = showAboutOverlay
-    hideAboutOverlay()
+    document.getElementById("about-btn").onclick = () => {overlay("about-overlay").show()}
+    if (start_info)
+        overlay("info-overlay").show()
 })

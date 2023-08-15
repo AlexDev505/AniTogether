@@ -21,7 +21,7 @@ if ty.TYPE_CHECKING:
     from rooms import Room, ROOM_ID
 
 
-async def server(websocket: WebSocketServerProtocol):
+async def ws_handler(websocket: WebSocketServerProtocol):
     logger.opt(colors=True).debug(f"New client: <r>{websocket.id}</r>")
     try:
         message = await websocket.recv()
@@ -29,10 +29,8 @@ async def server(websocket: WebSocketServerProtocol):
         assert type(data) is dict
         assert "command" in data
 
-        if data.get("command") == "create":
-            await create_room(websocket, data)
-        elif data.get("command") == "join":
-            await join_room(websocket, data)
+        if data.get("command") == "join":
+            await join_to_room(websocket, data)
         else:
             await error(websocket, UnknownCommand())
 
@@ -44,30 +42,7 @@ async def server(websocket: WebSocketServerProtocol):
         logger.opt(colors=True).debug(f"Client <r>{websocket.id}</r> disconnected")
 
 
-async def create_room(websocket: WebSocketServerProtocol, data: dict) -> None:
-    if (title_id := data.get("title_id")) is None:
-        return await error(websocket, ParamNotPassed("title_id"))
-    elif (episode := data.get("episode")) is None:
-        return await error(websocket, ParamNotPassed("episode"))
-
-    room_id = rooms.create_room(websocket, title_id, episode)
-
-    try:
-        await send(
-            websocket,
-            "init",
-            room_id=room_id,
-            me=0,
-            members=[0],
-            title_id=title_id,
-            episode=episode,
-        )
-        await room_handler(websocket, room_id)
-    finally:
-        await leave_room(websocket, room_id)
-
-
-async def join_room(websocket: WebSocketServerProtocol, data: dict) -> None:
+async def join_to_room(websocket: WebSocketServerProtocol, data: dict) -> None:
     if not (room_id := data.get("room_id")):
         return await error(websocket, ParamNotPassed("room_id"))
 

@@ -3,6 +3,10 @@
 {% block head %}
 
 <link rel="stylesheet" href="{{url_for('static', filename='css/home.css')}}">
+<script>
+var host = "{{ host }}"
+var start_info = "{{ info }}"
+</script>
 <script src="{{url_for('static', filename='js/home.js')}}"></script>
 
 {% endblock %}
@@ -56,7 +60,7 @@
     {% for title in history %}
 
     <div class="history-item"
-         onclick="window.open('/watch?title_id={{ title['id'] }}&episode={{ title['last_watched_episode'] }}','_self')">
+         onclick="createRoom({{ title['id'] }}, {{ title['last_watched_episode'] }})">
       <div class="history-item-card">
         <div class="poster-sizer" style="padding-bottom: 142.857%;"></div>
         <div id="poster-{{ title['id'] }}" class="history-item-poster"></div>
@@ -85,8 +89,7 @@
 
 </div>
 
-<div id="about-overlay" class="overlay" style="transform: translateX(100%);">
-  <div id="about-overlay-bg" class="overlay-bg"></div>
+<div id="about-overlay" class="overlay" data-align="right">
   <div id="about-overlay-content" class="overlay-content">
     <div id="app-title">
       <div>AniTogether</div>
@@ -95,6 +98,21 @@
     <div>Анилибрия: <a href="https://anilibria.tv" target="_blank">https://anilibria.tv</a></div>
     <div>Исходный код:  <a href="https://github.com/AlexDev505/AniTogether" target="_blank">github</a></div>
     <div id="dsc">Весь материал в приложении представлен исключительно для домашнего ознакомительного просмотра.</div>
+  </div>
+</div>
+
+<div id="info-overlay" class="overlay" data-align="center" data-easyclose="true">
+  <div id="info-overlay-content" class="overlay-content">
+    <div id="info-text" class="info-text">{{ info }}</div>
+    <div class="close-text">нажмите чтобы закрыть</div>
+  </div>
+</div>
+
+<div id="loading-overlay" class="overlay" data-align="center" data-unclosable="true">
+  <div id="loading-overlay-content" class="overlay-content">
+    <div id="loading-text" class="info-text">создание комнаты</div>
+    <div class="info-text">пожалуйста, подождите...</div>
+    <img src="{{url_for('static', filename='images/loading.gif')}}">
   </div>
 </div>
 
