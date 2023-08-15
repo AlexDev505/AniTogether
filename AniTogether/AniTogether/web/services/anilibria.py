@@ -1,4 +1,5 @@
 import re
+import time
 import typing as ty
 
 import orjson
@@ -11,6 +12,8 @@ from .tools import pretty_view
 DARKLIBRIA_URL = "https://darklibria.it/redirect/mirror/1"
 STORAGE_URL = "https://static.wwnd.space"
 api_url = "https://api.anilibria.tv/v3"
+
+_mirror_getting: bool = False
 
 
 class AnilibriaError(Exception):
@@ -29,6 +32,15 @@ class AnilibriaMirrorError(AnilibriaError):
 
 
 def get_mirror_url() -> str:
+    global _mirror_getting
+    if _mirror_getting:
+        old_api_url = str(api_url)
+        while _mirror_getting or old_api_url == api_url:
+            time.sleep(0.1)
+        return api_url
+
+    _mirror_getting = True
+
     try:
         response = requests.get(DARKLIBRIA_URL)
         if response.status_code != 200:
@@ -36,11 +48,15 @@ def get_mirror_url() -> str:
         response = response.text
         if not (match := re.search(r'<link rel="canonical" href="(.+)"/>', response)):
             raise AnilibriaMirrorError(2, "Could not find mirror link")
-        return match.group(1) + "/api/v3"
+        mirror_url = match.group(1) + "/api/v3"
+        logger.opt(colors=True).debug(f"New Anilibria api url: <r>{mirror_url}</r>")
+        return mirror_url
     except requests.exceptions.SSLError:
         raise AnilibriaMirrorError(1, "Darklibria unavailable: SSLError")
     except requests.exceptions.RequestException as err:
         raise AnilibriaMirrorError(0, f"Darklibria unavailable: {type(err).__name__}")
+    finally:
+        _mirror_getting = False
 
 
 def _send_request(query: str, *, _retries: int = 0, **data: ty.Any) -> dict:
