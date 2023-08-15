@@ -107,7 +107,28 @@ function changeResolution(new_resolution) {
     player.currentTime(current_time)
     if (!paused)
         player.play()
+    doAjax("/api/update_resolution", "POST", function(){}, {"resolution": resolution})
 }
+
+player.volume(volume)
+
+function delay(time) {
+    return new Promise(resolve => setTimeout(resolve, time));
+}
+
+var _lastVolumeChange = 0
+player.on("volumechange", async function() {
+    if (volume == player.volume().toFixed(2))
+        return
+    var _volume = player.volume().toFixed(2)
+    if (Date.now() - _lastVolumeChange < 1000)
+        await delay(1000)
+    if (player.volume().toFixed(2) != _volume)
+        return
+    _lastVolumeChange = Date.now()
+    volume = _volume
+    doAjax("/api/update_volume", "POST", function(){}, {"volume": volume})
+})
 
 
 var _episodes = -1

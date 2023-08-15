@@ -6,7 +6,7 @@ from functools import wraps
 from flask import Flask, render_template, redirect, request, jsonify
 from loguru import logger
 
-from .services import history, anilibria, tools
+from .services import history, temp_file, anilibria, tools
 
 
 if getattr(sys, "frozen", False):
@@ -73,12 +73,17 @@ def watch():
         logger.error(f"{type(err).__name__}: {str(err)}")
         return redirect(f"/?info={str(err)}")
 
+    temp = temp_file.load()
+    resolution = temp.get("resolution", "hd")
+    volume = temp.get("volume", 0.5)
+
     return render_template(
         "player.html",
         token=app.config["TOKEN"],
         title=title,
         episode=episode,
-        resolution="hd",
+        resolution=resolution,
+        volume=volume,
         host=os.environ["HOST"],
         room_id=room_id,
         anilibria_storage_url=anilibria.STORAGE_URL,
@@ -163,6 +168,24 @@ def update_history():
         episodes_count=episodes_count,
         last_watched_episode=last_watched_episode,
     )
+    return jsonify(status="ok")
+
+
+@app.route("/api/update_volume", methods=["POST"])
+@verify_token
+def update_volume():
+    data = json.loads(request.data)
+    volume = data["volume"]
+    temp_file.update(volume=volume)
+    return jsonify(status="ok")
+
+
+@app.route("/api/update_resolution", methods=["POST"])
+@verify_token
+def update_resolution():
+    data = json.loads(request.data)
+    resolution = data["resolution"]
+    temp_file.update(resolution=resolution)
     return jsonify(status="ok")
 
 
