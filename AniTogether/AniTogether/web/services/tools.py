@@ -54,7 +54,7 @@ def pretty_view(data: dict | list, _indent=0) -> str:
     result = ""
 
     if isinstance(data, dict):
-        if len(data) > 2 or not all(
+        if len(data) > 3 or not all(
             isinstance(x, (str, int, float, bool)) or x is None for x in data.values()
         ):
             result = (

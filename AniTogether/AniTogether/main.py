@@ -20,6 +20,9 @@ os.environ["VERSION"] = "1.0.0-alpha.2"
 # os.environ["HOST"] = "ws://localhost:8080/"
 os.environ["HOST"] = "wss://anitogetherserver.onrender.com"
 
+# TODO: remove
+os.environ["CONSOLE"] = "1"
+
 
 from logger import logger  # noqa
 from web.app import app  # noqa

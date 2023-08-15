@@ -69,6 +69,8 @@ def watch():
 def create_room(title_id, episode):
     try:
         title = anilibria.get_title(title_id)
+        logger.opt(colors=True).trace(tools.trace_title_data(title))
+        logger.opt(colors=True).debug(tools.debug_title_data(title))
     except anilibria.AnilibriaError as err:
         logger.error(f"{type(err).__name__}: {str(err)}")
         return jsonify(dict(status="error", msg=str(err), title_id=title_id))
@@ -127,6 +129,8 @@ def get_title():
 
     try:
         title = anilibria.get_title(title_id)
+        logger.opt(colors=True).trace(tools.trace_title_data(title))
+        logger.opt(colors=True).debug(tools.debug_title_data(title))
     except anilibria.AnilibriaError as err:
         logger.error(f"{type(err).__name__}: {str(err)}")
         return jsonify(dict(status="error", msg=str(err), title_id=title_id))
