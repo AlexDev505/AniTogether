@@ -2,7 +2,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "AniTogether"
-!define PRODUCT_VERSION "1.0.0-alpha.2"
+!define PRODUCT_VERSION "1.0.0-alpha.3"
 !define PRODUCT_PUBLISHER "AlexDev505"
 !define PRODUCT_WEB_SITE "https://github.com/AlexDev505/AniTogether"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\AniTogether.exe"
@@ -184,6 +184,7 @@ Section Uninstall
   Delete "$INSTDIR\uninst.exe"
   Delete "$LocalAppData\AniTogether\debug.log"
   Delete "$LocalAppData\AniTogether\history.csv"
+  Delete "$LocalAppData\AniTogether\temp.txt"
   Delete "$INSTDIR\_uuid.pyd"
   Delete "$INSTDIR\_ssl.pyd"
   Delete "$INSTDIR\_socket.pyd"

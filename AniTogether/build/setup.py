@@ -11,7 +11,7 @@ import shutil
 
 import PyInstaller.__main__
 
-__version__ = "1.0.0-alpha.2"
+__version__ = "1.0.0-alpha.3"
 
 dev_path = os.path.join(os.path.dirname(__file__), "..", "AniTogether")
 run_file_path = os.path.join(dev_path, "main.py")
