@@ -2,7 +2,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "AniTogether"
-!define PRODUCT_VERSION "1.0.0-alpha.3"
+!define PRODUCT_VERSION "1.0.0-alpha.4"
 !define PRODUCT_PUBLISHER "AlexDev505"
 !define PRODUCT_WEB_SITE "https://github.com/AlexDev505/AniTogether"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\AniTogether.exe"
@@ -16,8 +16,8 @@ SetCompressor lzma
 
 ; MUI Settings
 !define MUI_ABORTWARNING
-!define MUI_ICON "sources\icon.ico"
-!define MUI_UNICON "${NSISDIR}\Contrib\Graphics\Icons\orange-uninstall.ico"
+!define MUI_ICON "${NSISDIR}\Contrib\Graphics\Icons\modern-install.ico"
+!define MUI_UNICON "${NSISDIR}\Contrib\Graphics\Icons\modern-uninstall.ico"
 
 ; Welcome page
 !insertmacro MUI_PAGE_WELCOME
@@ -50,7 +50,7 @@ InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails show
 ShowUnInstDetails show
 
-Section "AniTogether" SEC01
+Section "MainSection" SEC01
   SetOutPath "$INSTDIR"
   SetOverwrite try
   File "AniTogether\AniTogether.exe"
@@ -74,6 +74,8 @@ Section "AniTogether" SEC01
   File "AniTogether\libssl-1_1.dll"
   SetOutPath "$INSTDIR\markupsafe"
   File "AniTogether\markupsafe\_speedups.cp310-win_amd64.pyd"
+  SetOutPath "$INSTDIR\orjson"
+  File "AniTogether\orjson\orjson.cp310-win_amd64.pyd"
   SetOutPath "$INSTDIR"
   File "AniTogether\pyexpat.pyd"
   File "AniTogether\python310.dll"
@@ -84,6 +86,7 @@ Section "AniTogether" SEC01
   SetOutPath "$INSTDIR\static\css"
   File "AniTogether\static\css\base.css"
   File "AniTogether\static\css\home.css"
+  File "AniTogether\static\css\overlays.css"
   File "AniTogether\static\css\player.css"
   SetOutPath "$INSTDIR\static\images"
   File "AniTogether\static\images\about.svg"
@@ -99,6 +102,7 @@ Section "AniTogether" SEC01
   File "AniTogether\static\images\no_muted.svg"
   File "AniTogether\static\images\pause_request.svg"
   File "AniTogether\static\images\person.svg"
+  File "AniTogether\static\images\play.svg"
   File "AniTogether\static\images\playlist.svg"
   File "AniTogether\static\images\resolution_fhd.svg"
   File "AniTogether\static\images\resolution_hd.svg"
@@ -109,6 +113,7 @@ Section "AniTogether" SEC01
   SetOutPath "$INSTDIR\static\js"
   File "AniTogether\static\js\base.js"
   File "AniTogether\static\js\home.js"
+  File "AniTogether\static\js\overlays.js"
   File "AniTogether\static\js\player.js"
   SetOutPath "$INSTDIR\templates"
   File "AniTogether\templates\base.html"
@@ -152,6 +157,7 @@ Section "AniTogether" SEC01
   File "AniTogether\_socket.pyd"
   File "AniTogether\_ssl.pyd"
   File "AniTogether\_uuid.pyd"
+  File "AniTogether\_zoneinfo.pyd"
 SectionEnd
 
 Section -AdditionalIcons
@@ -172,11 +178,11 @@ SectionEnd
 
 Function un.onUninstSuccess
   HideWindow
-  MessageBox MB_ICONINFORMATION|MB_OK "Удаление программы $(^Name) было успешно завершено."
+  MessageBox MB_ICONINFORMATION|MB_OK "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ $(^Name) пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ."
 FunctionEnd
 
 Function un.onInit
-  MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "Вы уверены в том, что желаете удалить $(^Name) и все компоненты программы?" IDYES +2
+  MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ $(^Name) пїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ?" IDYES +2
   Abort
 FunctionEnd
 
@@ -185,6 +191,7 @@ Section Uninstall
   Delete "$LocalAppData\AniTogether\debug.log"
   Delete "$LocalAppData\AniTogether\history.csv"
   Delete "$LocalAppData\AniTogether\temp.txt"
+  Delete "$INSTDIR\_zoneinfo.pyd"
   Delete "$INSTDIR\_uuid.pyd"
   Delete "$INSTDIR\_ssl.pyd"
   Delete "$INSTDIR\_socket.pyd"
@@ -219,6 +226,7 @@ Section Uninstall
   Delete "$INSTDIR\templates\home.html"
   Delete "$INSTDIR\templates\base.html"
   Delete "$INSTDIR\static\js\player.js"
+  Delete "$INSTDIR\static\js\overlays.js"
   Delete "$INSTDIR\static\js\home.js"
   Delete "$INSTDIR\static\js\base.js"
   Delete "$INSTDIR\static\images\window.svg"
@@ -228,6 +236,7 @@ Section Uninstall
   Delete "$INSTDIR\static\images\resolution_hd.svg"
   Delete "$INSTDIR\static\images\resolution_fhd.svg"
   Delete "$INSTDIR\static\images\playlist.svg"
+  Delete "$INSTDIR\static\images\play.svg"
   Delete "$INSTDIR\static\images\person.svg"
   Delete "$INSTDIR\static\images\pause_request.svg"
   Delete "$INSTDIR\static\images\no_muted.svg"
@@ -242,12 +251,14 @@ Section Uninstall
   Delete "$INSTDIR\static\images\circle.svg"
   Delete "$INSTDIR\static\images\about.svg"
   Delete "$INSTDIR\static\css\player.css"
+  Delete "$INSTDIR\static\css\overlays.css"
   Delete "$INSTDIR\static\css\home.css"
   Delete "$INSTDIR\static\css\base.css"
   Delete "$INSTDIR\select.pyd"
   Delete "$INSTDIR\pythonnet\runtime\Python.Runtime.dll"
   Delete "$INSTDIR\python310.dll"
   Delete "$INSTDIR\pyexpat.pyd"
+  Delete "$INSTDIR\orjson\orjson.cp310-win_amd64.pyd"
   Delete "$INSTDIR\markupsafe\_speedups.cp310-win_amd64.pyd"
   Delete "$INSTDIR\libssl-1_1.dll"
   Delete "$INSTDIR\libffi-7.dll"
@@ -284,6 +295,7 @@ Section Uninstall
   RMDir "$INSTDIR\static"
   RMDir "$INSTDIR\pythonnet\runtime"
   RMDir "$INSTDIR\pythonnet"
+  RMDir "$INSTDIR\orjson"
   RMDir "$INSTDIR\markupsafe"
   RMDir "$INSTDIR\clr_loader\ffi\dlls\x86"
   RMDir "$INSTDIR\clr_loader\ffi\dlls\amd64"
