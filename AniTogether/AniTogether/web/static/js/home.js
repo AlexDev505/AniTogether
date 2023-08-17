@@ -78,6 +78,11 @@ function onSearchTitles(resp) {
 function removeFromHistory(title_id) {
     doAjax("/api/remove_from_history", "POST", function(){}, {"title_id": title_id})
     document.getElementById(`history-item-${title_id}`).remove()
+    title_ids.pop(title_id)
+    if (!title_ids.length) {
+        document.getElementById("history-container").remove()
+        document.getElementById("history-is-empty").style.display = "block"
+    }
 }
 function onClickHistoryItem(event, title_id, episode="0") {
     // we do not handle clicking on the remove button and the progress bar
