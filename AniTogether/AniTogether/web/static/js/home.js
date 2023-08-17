@@ -151,7 +151,7 @@ window.addEventListener("DOMContentLoaded", (event) => {
     for (title_id of title_ids) {
         doAjax("/api/get_title_poster_url", "POST", onLoadPosterForHistoryItem, {"title_id": title_id});
     }
-    document.getElementById("about-btn").onclick = () => {overlay("about-overlay").show()}
+    document.getElementById("about-btn").onclick = () => {overlay("about-overlay").toggle()}
     if (start_info)
         overlay("info-overlay").show()
     if (check_version)

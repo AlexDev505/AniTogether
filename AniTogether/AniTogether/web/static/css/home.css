@@ -197,12 +197,14 @@ hr {
 .history-item-card:hover .progress-bar span {height: 100%;}
 
 #about-overlay div div {line-height: 1.2em;}
-#app-title {
-  margin-top: 1em;
-  margin-bottom: 0.5em;
-  font-size: 1.25rem;
+#app-info {
+  display: flex;
+  margin-bottom: 0.7em;
+  align-items: center;
 }
-#app-title > :first-child {margin-bottom: 2px}
+#app-info img {height: 3em}
+#app-info > :last-child {margin-left: 16px}
+#app-title {font-size: 1.25rem; margin-bottom: 2px}
 .version {font-size:small}
 #dsc {margin-top: 0.5em}
 

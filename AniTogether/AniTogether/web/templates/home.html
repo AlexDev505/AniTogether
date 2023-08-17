@@ -91,12 +91,15 @@ var check_version = {{ check_version|tojson }}
 
 </div>
 
-<div id="about-overlay" class="overlay" data-align="right">
+<div id="about-overlay" class="overlay" data-align="top-right" data-close-btn="true">
   <div id="about-overlay-content" class="overlay-content">
-    <div id="app-title">
-      <div>AniTogether</div>
-      <div class="version">версия: {{version}}</div>
-      <div id="check-update-btn" onclick="checkUpdate()">проверить наличие обновление</div>
+    <div id="app-info">
+      <img src="{{url_for('static', filename='images/icon.png')}}">
+      <div>
+        <div id="app-title">AniTogether</div>
+        <div class="version">версия: {{version}}</div>
+        <div id="check-update-btn" onclick="checkUpdate()">проверить наличие обновление</div>
+      </div>
     </div>
     <div>Анилибрия: <a href="https://anilibria.tv" target="_blank">https://anilibria.tv</a></div>
     <div>Исходный код:  <a href="https://github.com/AlexDev505/AniTogether" target="_blank">github</a></div>
