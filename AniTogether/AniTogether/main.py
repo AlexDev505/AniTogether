@@ -1,9 +1,5 @@
 import os
 
-import webview
-
-from js_api import JSApi
-
 
 # CONFIG SETUP
 # Путь к директории приложения
@@ -27,18 +23,20 @@ os.environ["CONSOLE"] = "1"
 
 
 from logger import logger  # noqa
-from web.app import app  # noqa
-
-
-updater_path = os.path.join(
-    os.environ["APP_DIR"], f"AniTogetherSetup.{os.environ['VERSION']}.exe"
-)
-if os.path.isfile(updater_path):
-    os.remove(updater_path)
-del updater_path
 
 
 def main() -> None:
+    import webview
+    from js_api import JSApi
+    from web.app import app
+
+    updater_path = os.path.join(
+        os.environ["APP_DIR"], f"AniTogetherUpdate.{os.environ['VERSION']}.exe"
+    )
+    if os.path.isfile(updater_path):
+        os.remove(updater_path)
+    del updater_path
+
     def _on_loaded():
         logger.info(f"Загружена страница {window.get_current_url()}")
 
@@ -72,4 +70,5 @@ def main() -> None:
     webview.start(debug=True)
 
 
-main()
+if __name__ == "__main__":
+    main()

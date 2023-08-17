@@ -17,7 +17,8 @@ from version import Version
 
 __version__ = Version(1, 0, 0, "betta", 2)
 dev_path = os.path.join(os.path.dirname(__file__), "..", "AniTogether")
-run_file_path = os.path.join(dev_path, "main.py")
+run_file_path = os.path.join(dev_path, "run.py")
+main_file_path = os.path.join(dev_path, "main.py")
 
 # CHECK LAST BUILD
 with open("last_build.json", encoding="utf-8") as file:
@@ -32,14 +33,14 @@ elif __version__ < last_build_version:
     exit()
 
 # CHANGE VERSIONS IN BUILD
-with open(run_file_path, encoding="utf-8") as file:
+with open(main_file_path, encoding="utf-8") as file:
     text = file.read()
 text = re.sub(
     r'os.environ\["VERSION"] = ".+"',
     f'os.environ["VERSION"] = "{__version__}"',
     text,
 )
-with open(run_file_path, "w", encoding="utf-8") as file:
+with open(main_file_path, "w", encoding="utf-8") as file:
     file.write(text)
 
 with open(r"sources/version_file") as file:

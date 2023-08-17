@@ -5,7 +5,7 @@ block_cipher = None
 
 
 a = Analysis(
-    ['E:\\AlexDev\\PycharmProjects\\AniTogetherProject\\AniTogether\\build\\..\\AniTogether\\main.py'],
+    ['E:\\AlexDev\\PycharmProjects\\AniTogetherProject\\AniTogether\\build\\..\\AniTogether\\run.py'],
     pathex=[],
     binaries=[],
     datas=[('E:\\AlexDev\\PycharmProjects\\AniTogetherProject\\AniTogether\\build\\..\\AniTogether\\web\\static', 'static'), ('E:\\AlexDev\\PycharmProjects\\AniTogetherProject\\AniTogether\\build\\..\\AniTogether\\web\\templates', 'templates')],

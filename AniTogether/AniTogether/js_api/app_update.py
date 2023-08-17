@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import os
+import sys
 import time
 import typing as ty
+from subprocess import Popen
 
 import orjson
 import requests
 from loguru import logger
-from ctypes import windll
 
 
 if ty.TYPE_CHECKING:
@@ -49,8 +50,7 @@ def update_app(window: webview.Window) -> dict | None:
 
     logger.info("Closing app")
     window.destroy()
-    logger.info("Running updater")
-    windll.shell32.ShellExecuteW(None, "runas", updater_path, None, None, 1)
+    Popen([sys.executable, f"--run-update={updater_path}"])
 
 
 def get_last_release() -> dict:
