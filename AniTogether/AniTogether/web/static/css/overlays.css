@@ -66,19 +66,26 @@
   border-radius: 4px;
   transform: scale(0);
 }
-.overlay[data-align="top-left"] {
-  width: auto;
-  height: auto;
+.overlay[data-align="top-left"],
+.overlay[data-align="top-right"] {
+  width: fit-content;
+  height: fit-content;
   top: 56px;
   left: 16px;
   transition: 0.2s transform ease-in-out;
-  transform-origin: top;
-  transform: scale(0);
+  transform: translateX(-110%);
 }
-.overlay[data-align="top-left"] .overlay-content {
-  top: auto;
+.overlay[data-align="top-left"] .overlay-content,
+.overlay[data-align="top-right"] .overlay-content {
+  position: unset;
   height: auto;
   margin: auto;
   min-height: 60px;
   border-radius: 4px;
+}
+
+.overlay[data-align="top-right"] {
+    left: auto;
+    right: 16px;
+    transform: translateX(110%);
 }

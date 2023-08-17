@@ -28,6 +28,7 @@ class Overlay {
         if (el.dataset.easyClose) {
             this.content.onclick = () => (this.hide())
         }
+        this.shown = false
     }
     show() {
         if (this.align == "right" || this.align == "left") {
@@ -40,9 +41,10 @@ class Overlay {
             this.content.style = "transition: transform 0.3s; transform: scale(1);"
             this.bg.style.display = "flex"
         }
-        else if (this.align == "top-left") {
-            this.el.style = "transform: scale(1);"
+        else if (this.align == "top-left" || this.align == "top-right") {
+            this.el.style = "transform: translateX(0%);"
         }
+        this.shown = true
     }
     hide() {
         if (this.align == "right") {
@@ -61,8 +63,18 @@ class Overlay {
             this.bg.style.display = "none"
         }
         else if (this.align == "top-left") {
-            this.el.style = "transform: scale(0);"
+            this.el.style = "transform: translateX(-110%);"
         }
+        else if (this.align == "top-right") {
+            this.el.style = "transform: translateX(110%);"
+        }
+        this.shown = false
+    }
+    toggle() {
+        if (this.shown)
+            this.hide()
+        else
+            this.show()
     }
 }
 
