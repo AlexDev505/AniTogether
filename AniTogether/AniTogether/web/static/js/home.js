@@ -75,6 +75,16 @@ function onSearchTitles(resp) {
     hideSearchAnimation()
 }
 
+function removeFromHistory(title_id) {
+    doAjax("/api/remove_from_history", "POST", function(){}, {"title_id": title_id})
+    document.getElementById(`history-item-${title_id}`).remove()
+}
+function onClickHistoryItem(event, title_id, episode="0") {
+    // we do not handle clicking on the remove button and the progress bar
+    if (event.target.id)
+        createRoom(title_id, episode)
+}
+
 function createRoom(title_id, episode="0") {
     document.getElementById("loading-text").innerHTML = "создание комнаты"
     overlay("loading-overlay").show()

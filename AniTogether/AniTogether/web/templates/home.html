@@ -61,29 +61,30 @@ var check_version = {{ check_version|tojson }}
   <div id="history-container">
     {% for title in history %}
 
-    <div class="history-item"
-         onclick="createRoom({{ title['id'] }}, {{ title['last_watched_episode'] }})">
+    <div id="history-item-{{ title.id }}" class="history-item"
+         onclick="onClickHistoryItem(event, {{ title.id }}, {{ title.last_watched_episode }})">
       <div class="history-item-card">
         <div class="poster-sizer" style="padding-bottom: 142.857%;"></div>
-        <div id="poster-{{ title['id'] }}" class="history-item-poster"></div>
+        <div id="poster-{{ title.id }}" class="history-item-poster"></div>
+        <div class="remove-button" onclick="removeFromHistory({{ title.id }})"></div>
         <div class="progress-bar">
-          <div style="width: {{ title['last_watched_episode']/title['episodes_count']*100 }}%;"></div>
+          <div style="width: {{ title.last_watched_episode/title.episodes_count*100 }}%;"></div>
           <div style="
             opacity: 0.3;
-            left: {{ title['last_watched_episode']/title['episodes_count']*100 }}%;
-            width: {{ 100-title['last_watched_episode']/title['episodes_count']*100 }}%;"
+            left: {{ title.last_watched_episode/title.episodes_count*100 }}%;
+            width: {{ 100-title.last_watched_episode/title.episodes_count*100 }}%;"
           ></div>
-          {% if title['episodes_count'] == title['last_watched_episode'] %}
+          {% if title.episodes_count == title.last_watched_episode %}
           <span>Все эпизоды</span>
-          {% elif title['last_watched_episode'] == 0 %}
+          {% elif title.last_watched_episode == 0 %}
           <span>Ни одного эпизода</span>
           {% else %}
-          <span>{{ title['last_watched_episode'] }} из {{ title['episodes_count'] }} эпизодов</span>
+          <span>{{ title.last_watched_episode }} из {{ title.episodes_count }} эпизодов</span>
           {% endif %}
         </div>
       </div>
     </div>
-    <script>title_ids.push({{ title['id'] }})</script>
+    <script>title_ids.push({{ title.id }})</script>
 
     {% endfor %}
   </div>

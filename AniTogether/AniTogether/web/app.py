@@ -176,6 +176,16 @@ def update_history():
     return jsonify(status="ok")
 
 
+@app.route("/api/remove_from_history", methods=["POST"])
+@verify_token
+def remove_from_history():
+    data = json.loads(request.data)
+    title_id = data["title_id"]
+    logger.opt(colors=True).debug(f"Updating history: title <y>{title_id}</y> removed")
+    history.remove(title_id)
+    return jsonify(status="ok")
+
+
 @app.route("/api/update_volume", methods=["POST"])
 @verify_token
 def update_volume():

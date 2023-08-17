@@ -109,6 +109,17 @@ def update(
     save(history)
 
 
+def remove(title_id: int) -> None:
+    history = load()
+
+    try:
+        item = next(filter(lambda item_: item_.id == title_id, history))
+        history.remove(item)
+        save(history)
+    except StopIteration:
+        pass
+
+
 def _fix_headers() -> None:
     """
     Перезаписывает заголовки.
