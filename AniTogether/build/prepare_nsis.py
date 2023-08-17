@@ -43,6 +43,7 @@ def prepare_updater(previous_build: dict, build: dict) -> None:
     with open("updater_template.nsi") as file:
         text = file.read()
 
+    install_static = "\n"
     install = ""
     uninstall_files = ""
     uninstall_dirs = []
@@ -52,14 +53,22 @@ def prepare_updater(previous_build: dict, build: dict) -> None:
         out_path = root.replace("AniTogether", "$INSTDIR")
         uninstall_dirs.append(f'  RMDir "{out_path}"')
         path_added = False
+        static_path_added = False
         for file_name in file_names:
             uninstall_files += f'\n  Delete "{os.path.join(out_path, file_name)}"'
-            if file_name in previous_root_files:
+
+            if file_name not in previous_root_files:
+                if not path_added:
+                    path_added = True
+                    install += f'\n    SetOutPath "{out_path}"'
+                install += f'\n    File "{os.path.join(root, file_name)}"'
                 continue
-            if not path_added:
-                path_added = True
-                install += f'\n    SetOutPath "{out_path}"'
-            install += f'\n    File "{os.path.join(root, file_name)}"'
+
+            if r"\static" in root or r"\templates" in root:
+                if not static_path_added:
+                    static_path_added = True
+                    install_static += f'\n    SetOutPath "{out_path}"'
+                install_static += f'\n    File "{os.path.join(root, file_name)}"'
 
     for root in reversed(previous_build["files"].keys()):
         file_names = previous_build["files"][root]
@@ -77,7 +86,7 @@ def prepare_updater(previous_build: dict, build: dict) -> None:
     text = text.replace("{version}", build["version"])
 
     if install:
-        text = text.replace("{install}", "\n" + install + "\n")
+        text = text.replace("{install}", install_static + "\n" + install + "\n")
         uninstall_dirs.reverse()
         uninstall = uninstall_files + "\n\n" + "\n".join(uninstall_dirs)
         uninstall += ADDITIONAL_UNINSTALL
@@ -85,7 +94,7 @@ def prepare_updater(previous_build: dict, build: dict) -> None:
         text = text.replace("\n{%uninstaller section%}", "")
         text = text.replace("\n{%uninstaller section end%}", "")
     else:
-        text = text.replace("{install}", "")
+        text = text.replace("{install}", install_static + "\n")
         text = text.replace("{uninstall}", "")
         text = re.sub(
             r"\s{%uninstaller section%}\s(.*\s)+?{%uninstaller section end%}", "", text

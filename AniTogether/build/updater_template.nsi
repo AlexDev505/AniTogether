@@ -27,6 +27,7 @@ AutoCloseWindow true
 ; Uninstaller pages
 !insertmacro MUI_UNPAGE_INSTFILES
 {%uninstaller section end%}
+
 ; Language files
 !insertmacro MUI_LANGUAGE "Russian"
 
@@ -54,6 +55,7 @@ ShowUnInstDetails show
 !macroend
 
 Section "AniTogether" SEC01
+  SetOverwrite try
   SetOutPath "$INSTDIR"
   FileIsLocked:
     ${IfFileLocked} FileLocked
