@@ -47,10 +47,10 @@ def update_app(window: webview.Window) -> dict | None:
     if not download_updater(updater_url, updater_path):
         return dict(message="ошибка при скачивании файлов обновления")
 
-    logger.info("Running updater")
-    windll.shell32.ShellExecuteW(None, "runas", updater_path, None, None, 1)
     logger.info("Closing app")
     window.destroy()
+    logger.info("Running updater")
+    windll.shell32.ShellExecuteW(None, "runas", updater_path, None, None, 1)
 
 
 def get_last_release() -> dict:
