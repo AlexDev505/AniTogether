@@ -82,7 +82,6 @@ SectionEnd
 Function .OnInstSuccess
   SetOutPath "$INSTDIR"
   Exec "AniTogether.exe"
-  Delete "$LocalAppData\AniTogetherUpdate.${PRODUCT_VERSION}.exe"
 FunctionEnd
 
 {%uninstaller section%}

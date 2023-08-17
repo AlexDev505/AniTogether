@@ -30,6 +30,14 @@ from logger import logger  # noqa
 from web.app import app  # noqa
 
 
+updater_path = os.path.join(
+    os.environ["APP_DIR"], f"AniTogetherSetup.{os.environ['VERSION']}.exe"
+)
+if os.path.isfile(updater_path):
+    os.remove(updater_path)
+del updater_path
+
+
 def main() -> None:
     def _on_loaded():
         logger.info(f"Загружена страница {window.get_current_url()}")
