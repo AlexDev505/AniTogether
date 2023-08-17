@@ -75,12 +75,16 @@ PyInstaller.__main__.run(
 shutil.rmtree("temp")
 
 # SAVING INFO ABOUT CURRENT BUILD
+print("\nSaving build info")
 current_build = {"version": str(__version__), "files": {}}
 for root, _, file_names in os.walk("AniTogether"):
     current_build["files"][root] = file_names
 with open("last_build.json", "w", encoding="utf-8") as file:
     file.write(json.dumps(current_build, indent=4))
 
+print("Preparing installer")
 prepare_installer(current_build)
 if __version__ > last_build_version:
-    prepare_updater(last_build, current_build)
+    update_uninstaller = input("update_uninstaller? (y/n): ") == "y"
+    print("Preparing updater")
+    prepare_updater(last_build, current_build, update_uninstaller)

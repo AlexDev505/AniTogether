@@ -7,7 +7,7 @@ ADDITIONAL_UNINSTALL = (
     "\n  " + r'Delete "$LocalAppData\AniTogether\debug.log"'
     "\n  " + r'Delete "$LocalAppData\AniTogether\history.csv"'
     "\n  " + r'Delete "$LocalAppData\AniTogether\temp.txt"'
-    "\n  " + r'RMDir "$LocalAppData"'
+    "\n  " + r'RMDir "$LocalAppData\AniTogether"'
 )
 
 
@@ -40,7 +40,9 @@ def prepare_installer(build: dict) -> None:
         file.write(text)
 
 
-def prepare_updater(previous_build: dict, build: dict) -> None:
+def prepare_updater(
+    previous_build: dict, build: dict, update_uninstaller: bool = False
+) -> None:
     with open("updater_template.nsi") as file:
         text = file.read()
 
@@ -87,7 +89,12 @@ def prepare_updater(previous_build: dict, build: dict) -> None:
     text = text.replace("{version}", build["version"])
 
     if install:
+        update_uninstaller = True
         text = text.replace("{install}", install_static + "\n" + install + "\n")
+    else:
+        text = text.replace("{install}", install_static + "\n")
+
+    if update_uninstaller:
         uninstall_dirs.reverse()
         uninstall = uninstall_files + "\n\n" + "\n".join(uninstall_dirs)
         uninstall += ADDITIONAL_UNINSTALL
@@ -95,7 +102,6 @@ def prepare_updater(previous_build: dict, build: dict) -> None:
         text = text.replace("\n{%uninstaller section%}", "")
         text = text.replace("\n{%uninstaller section end%}", "")
     else:
-        text = text.replace("{install}", install_static + "\n")
         text = text.replace("{uninstall}", "")
         text = re.sub(
             r"\s{%uninstaller section%}\s(.*\s)+?{%uninstaller section end%}", "", text
