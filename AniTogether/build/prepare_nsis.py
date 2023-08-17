@@ -6,6 +6,7 @@ ADDITIONAL_UNINSTALL = (
     "\n"
     "\n  " + r'Delete "$LocalAppData\AniTogether\debug.log"'
     "\n  " + r'Delete "$LocalAppData\AniTogether\history.csv"'
+    "\n  " + r'Delete "$LocalAppData\AniTogether\temp.txt"'
     "\n  " + r'RMDir "$LocalAppData"'
 )
 

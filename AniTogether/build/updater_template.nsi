@@ -37,7 +37,7 @@ AutoCloseWindow true
 ; MUI end ------
 
 Name "${PRODUCT_NAME}"
-OutFile "updaters\AniTogetherUpdate ${PRODUCT_VERSION}.exe"
+OutFile "updaters\AniTogetherUpdate.${PRODUCT_VERSION}.exe"
 InstallDir "$PROGRAMFILES\AniTogether"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails show
@@ -82,6 +82,7 @@ SectionEnd
 Function .OnInstSuccess
   SetOutPath "$INSTDIR"
   Exec "AniTogether.exe"
+  Delete "$LocalAppData\AniTogetherUpdate.${PRODUCT_VERSION}.exe"
 FunctionEnd
 
 {%uninstaller section%}
