@@ -6,6 +6,8 @@
 <script>
 var host = "{{ host }}"
 var start_info = "{{ info }}"
+var version = "{{ version }}"
+var check_version = {{ check_version|tojson }}
 </script>
 <script src="{{url_for('static', filename='js/home.js')}}"></script>
 
@@ -93,7 +95,7 @@ var start_info = "{{ info }}"
   <div id="about-overlay-content" class="overlay-content">
     <div id="app-title">
       <div>AniTogether</div>
-      <div id="version">версия: {{version}}</div>
+      <div class="version">версия: {{version}}</div>
     </div>
     <div>Анилибрия: <a href="https://anilibria.tv" target="_blank">https://anilibria.tv</a></div>
     <div>Исходный код:  <a href="https://github.com/AlexDev505/AniTogether" target="_blank">github</a></div>
@@ -101,10 +103,9 @@ var start_info = "{{ info }}"
   </div>
 </div>
 
-<div id="info-overlay" class="overlay" data-align="center" data-easyclose="true">
+<div id="info-overlay" class="overlay" data-align="center" data-close-text="true" data-easy-close="true">
   <div id="info-overlay-content" class="overlay-content">
     <div id="info-text" class="info-text">{{ info }}</div>
-    <div class="close-text">нажмите чтобы закрыть</div>
   </div>
 </div>
 
@@ -113,6 +114,17 @@ var start_info = "{{ info }}"
     <div id="loading-text" class="info-text">создание комнаты</div>
     <div class="info-text">пожалуйста, подождите...</div>
     <img src="{{url_for('static', filename='images/loading.gif')}}">
+  </div>
+</div>
+
+<div id="versions-overlay" class="overlay" data-align="top-left" data-close-btn="true">
+  <div id="versions-overlay-content" class="overlay-content">
+    <div>
+      <div class="info-text">Доступна новая версия приложения</div>
+      <div class="version">текущая версия: {{version}}</div>
+      <div class="version">новейшая версия: <span id="last-version"></span></div>
+      <div id="update-btn" onclick="update_app()">Обновить</div>
+    </div>
   </div>
 </div>
 

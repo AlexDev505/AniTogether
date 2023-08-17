@@ -4,4 +4,5 @@ __pycache__/
 AniTogetherAppData.lnk
 
 /build/installers/
+/build/updaters/
 /build/AniTogether/

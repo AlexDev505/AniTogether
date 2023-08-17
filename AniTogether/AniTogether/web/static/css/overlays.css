@@ -24,6 +24,20 @@
   height: -webkit-fill-available;
   top: 0px;
 }
+.overlay-close-text {
+  opacity: 0.7;
+  text-decoration: underline;
+  margin-top: 10px;
+  cursor: pointer;
+}
+.overlay-close-btn {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  width: 10px;
+  cursor: pointer;
+}
+.overlay-close-btn::before {content: url(../images/cross.svg)}
 
 .overlay[data-align="left"] div.overlay-content,
 .overlay[data-align="left"] {
@@ -49,5 +63,22 @@
   height: auto;
   margin: auto;
   min-height: 60px;
+  border-radius: 4px;
   transform: scale(0);
+}
+.overlay[data-align="top-left"] {
+  width: auto;
+  height: auto;
+  top: 56px;
+  left: 16px;
+  transition: 0.2s transform ease-in-out;
+  transform-origin: top;
+  transform: scale(0);
+}
+.overlay[data-align="top-left"] .overlay-content {
+  top: auto;
+  height: auto;
+  margin: auto;
+  min-height: 60px;
+  border-radius: 4px;
 }

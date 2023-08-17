@@ -1,0 +1,129 @@
+{
+    "version": "1.0.0-alpha.4",
+    "files": {
+        "AniTogether": [
+            "AniTogether.exe",
+            "base_library.zip",
+            "libcrypto-1_1.dll",
+            "libffi-7.dll",
+            "libssl-1_1.dll",
+            "pyexpat.pyd",
+            "python310.dll",
+            "select.pyd",
+            "unicodedata.pyd",
+            "VCRUNTIME140.dll",
+            "_asyncio.pyd",
+            "_bz2.pyd",
+            "_cffi_backend.cp310-win_amd64.pyd",
+            "_ctypes.pyd",
+            "_decimal.pyd",
+            "_elementtree.pyd",
+            "_hashlib.pyd",
+            "_lzma.pyd",
+            "_multiprocessing.pyd",
+            "_overlapped.pyd",
+            "_queue.pyd",
+            "_socket.pyd",
+            "_ssl.pyd",
+            "_uuid.pyd",
+            "_zoneinfo.pyd"
+        ],
+        "AniTogether\\certifi": [
+            "cacert.pem",
+            "py.typed"
+        ],
+        "AniTogether\\charset_normalizer": [
+            "md.cp310-win_amd64.pyd",
+            "md__mypyc.cp310-win_amd64.pyd"
+        ],
+        "AniTogether\\clr_loader": [],
+        "AniTogether\\clr_loader\\ffi": [],
+        "AniTogether\\clr_loader\\ffi\\dlls": [],
+        "AniTogether\\clr_loader\\ffi\\dlls\\amd64": [
+            "ClrLoader.dll"
+        ],
+        "AniTogether\\clr_loader\\ffi\\dlls\\x86": [
+            "ClrLoader.dll"
+        ],
+        "AniTogether\\markupsafe": [
+            "_speedups.cp310-win_amd64.pyd"
+        ],
+        "AniTogether\\orjson": [
+            "orjson.cp310-win_amd64.pyd"
+        ],
+        "AniTogether\\pythonnet": [],
+        "AniTogether\\pythonnet\\runtime": [
+            "Python.Runtime.dll"
+        ],
+        "AniTogether\\static": [],
+        "AniTogether\\static\\css": [
+            "base.css",
+            "home.css",
+            "overlays.css",
+            "player.css"
+        ],
+        "AniTogether\\static\\images": [
+            "about.svg",
+            "circle.svg",
+            "cross.svg",
+            "crown.svg",
+            "go.svg",
+            "group.svg",
+            "home.svg",
+            "line.svg",
+            "loading.gif",
+            "muted.svg",
+            "no_muted.svg",
+            "pause_request.svg",
+            "person.svg",
+            "play.svg",
+            "playlist.svg",
+            "resolution_fhd.svg",
+            "resolution_hd.svg",
+            "resolution_sd.svg",
+            "rewind_request.svg",
+            "synchronize.svg",
+            "window.svg"
+        ],
+        "AniTogether\\static\\js": [
+            "base.js",
+            "home.js",
+            "overlays.js",
+            "player.js"
+        ],
+        "AniTogether\\templates": [
+            "base.html",
+            "home.html",
+            "player.html"
+        ],
+        "AniTogether\\webview": [],
+        "AniTogether\\webview\\lib": [
+            "Microsoft.Web.WebView2.Core.dll",
+            "Microsoft.Web.WebView2.WinForms.dll",
+            "WebBrowserInterop.x64.dll",
+            "WebBrowserInterop.x86.dll"
+        ],
+        "AniTogether\\webview\\lib\\runtimes": [],
+        "AniTogether\\webview\\lib\\runtimes\\win-arm64": [],
+        "AniTogether\\webview\\lib\\runtimes\\win-arm64\\native": [
+            "WebView2Loader.dll"
+        ],
+        "AniTogether\\webview\\lib\\runtimes\\win-x64": [],
+        "AniTogether\\webview\\lib\\runtimes\\win-x64\\native": [
+            "WebView2Loader.dll"
+        ],
+        "AniTogether\\webview\\lib\\runtimes\\win-x86": [],
+        "AniTogether\\webview\\lib\\runtimes\\win-x86\\native": [
+            "WebView2Loader.dll"
+        ],
+        "AniTogether\\wheel-0.41.1.dist-info": [
+            "entry_points.txt",
+            "INSTALLER",
+            "LICENSE.txt",
+            "METADATA",
+            "RECORD",
+            "REQUESTED",
+            "WHEEL"
+        ]
+    }
+}

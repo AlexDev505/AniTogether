@@ -21,6 +21,7 @@ app = Flask(
 )
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 1  # disable caching
 app.config["TOKEN"] = ""
+os.environ["CHECK_VERSION"] = "1"
 
 
 def verify_token(function):
@@ -46,6 +47,9 @@ def add_header(response):
 def index():
     data = request.args.to_dict()
     info = data.get("info", "")
+    check_version = bool(os.environ.get("CHECK_VERSION"))
+    if check_version:
+        del os.environ["CHECK_VERSION"]
     return render_template(
         "home.html",
         token=app.config["TOKEN"],
@@ -53,6 +57,7 @@ def index():
         info=info,
         host=os.environ["HOST"],
         version=os.environ["VERSION"],
+        check_version=check_version,
     )
 
 
