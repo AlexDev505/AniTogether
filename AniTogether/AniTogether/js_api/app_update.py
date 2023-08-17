@@ -31,7 +31,7 @@ def update_app(window: webview.Window) -> dict | None:
         logger.debug("The same version is installed now")
         return dict(message="новейшая версия уже установлена")
 
-    updater_file_name = f"AniTogetherUpdate {last_version}.exe"
+    updater_file_name = f"AniTogetherUpdate.{last_version}.exe"
     for asset in last_release["assets"]:
         if updater_file_name == asset["name"]:
             updater_url = asset["browser_download_url"]
