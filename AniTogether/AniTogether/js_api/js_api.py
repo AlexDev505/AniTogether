@@ -2,6 +2,7 @@ import webview
 from loguru import logger
 
 from .window_geometry import resize, move_to_cursor, drag_window
+from .app_update import update_app
 
 
 class JSApi:
@@ -45,3 +46,6 @@ class JSApi:
 
     def resize_drag(self, size_grip: str) -> None:
         resize(self._window, size_grip)
+
+    def update_app(self) -> dict:
+        return update_app(self._window) or {}

@@ -202,7 +202,7 @@ hr {
   margin-bottom: 0.5em;
   font-size: 1.25rem;
 }
-#version {font-size:smaller}
+.version {font-size:smaller}
 #dsc {margin-top: 0.5em}
 
 #loading-overlay-content,
@@ -216,12 +216,17 @@ hr {
 }
 .info-text {font-size: larger;}
 #loading-overlay-content img {height: 4em}
-.close-text {
-  opacity: 0.7;
-  text-decoration: underline;
-}
+
 #info-overlay-content {
   display: flex;
   justify-content: space-between;
   flex-direction: column;
 }
+
+#update-btn {
+  font-size:smaller;
+  text-decoration: underline;
+  cursor: pointer;
+}
+#versions-overlay-content > div > :first-child {margin-bottom: 5px}
+#versions-overlay-content > div > :last-child {margin-top: 5px}
