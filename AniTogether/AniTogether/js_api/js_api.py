@@ -25,7 +25,6 @@ class JSApi:
         self._full_screen = not self._full_screen
 
     def toggle_player_full_screen_app(self, value: bool) -> None:
-        print(value, self._was_full_screen)
         if value:
             if self._full_screen:
                 self._was_full_screen = True
