@@ -2,7 +2,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "AniTogether"
-!define PRODUCT_VERSION "1.0.0-alpha.6"
+!define PRODUCT_VERSION "1.0.0-alpha.7"
 !define PRODUCT_PUBLISHER "AlexDev505"
 !define PRODUCT_WEB_SITE "https://github.com/AlexDev505/AniTogether"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\AniTogether.exe"
@@ -22,6 +22,7 @@ AutoCloseWindow true
 
 ; Instfiles page
 !insertmacro MUI_PAGE_INSTFILES
+
 
 ; Language files
 !insertmacro MUI_LANGUAGE "Russian"
@@ -47,10 +48,49 @@ ShowInstDetails show
 !macroend
 
 Section "AniTogether" SEC01
+  SetOverwrite try
   SetOutPath "$INSTDIR"
   FileIsLocked:
     ${IfFileLocked} FileLocked
     File "AniTogether\AniTogether.exe"
+
+    SetOutPath "$INSTDIR\static\css"
+    File "AniTogether\static\css\base.css"
+    File "AniTogether\static\css\home.css"
+    File "AniTogether\static\css\overlays.css"
+    File "AniTogether\static\css\player.css"
+    SetOutPath "$INSTDIR\static\images"
+    File "AniTogether\static\images\about.svg"
+    File "AniTogether\static\images\circle.svg"
+    File "AniTogether\static\images\cross.svg"
+    File "AniTogether\static\images\crown.svg"
+    File "AniTogether\static\images\go.svg"
+    File "AniTogether\static\images\group.svg"
+    File "AniTogether\static\images\home.svg"
+    File "AniTogether\static\images\line.svg"
+    File "AniTogether\static\images\loading.gif"
+    File "AniTogether\static\images\muted.svg"
+    File "AniTogether\static\images\no_muted.svg"
+    File "AniTogether\static\images\pause_request.svg"
+    File "AniTogether\static\images\person.svg"
+    File "AniTogether\static\images\play.svg"
+    File "AniTogether\static\images\playlist.svg"
+    File "AniTogether\static\images\resolution_fhd.svg"
+    File "AniTogether\static\images\resolution_hd.svg"
+    File "AniTogether\static\images\resolution_sd.svg"
+    File "AniTogether\static\images\rewind_request.svg"
+    File "AniTogether\static\images\synchronize.svg"
+    File "AniTogether\static\images\window.svg"
+    SetOutPath "$INSTDIR\static\js"
+    File "AniTogether\static\js\base.js"
+    File "AniTogether\static\js\home.js"
+    File "AniTogether\static\js\overlays.js"
+    File "AniTogether\static\js\player.js"
+    SetOutPath "$INSTDIR\templates"
+    File "AniTogether\templates\base.html"
+    File "AniTogether\templates\home.html"
+    File "AniTogether\templates\player.html"
+
     Goto Done
   FileLocked:
     Goto FileIsLocked
