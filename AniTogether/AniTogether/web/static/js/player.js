@@ -153,7 +153,9 @@ function setEpisode(episode_number) {
 }
 function initEpisode(episode_number) {
     document.getElementById('episodes-list').childNodes[episode - 1].classList.remove('active')
-    document.getElementById('episodes-list').childNodes[episode_number - 1].classList.add('active')
+    cur_episode_el = document.getElementById('episodes-list').childNodes[episode_number - 1]
+    cur_episode_el.classList.add('active')
+    document.getElementById("episodes-overlay-content").scrollTop = cur_episode_el.offsetTop
     episode = episode_number
 
     if (title.player.list[episode].preview)
