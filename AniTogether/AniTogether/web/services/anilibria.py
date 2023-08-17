@@ -51,8 +51,8 @@ def get_mirror_url() -> str:
         mirror_url = match.group(1) + "/api/v3"
         logger.opt(colors=True).debug(f"New Anilibria api url: <r>{mirror_url}</r>")
         return mirror_url
-    except requests.exceptions.SSLError:
-        raise AnilibriaMirrorError(1, "Darklibria unavailable: SSLError")
+    except (requests.exceptions.SSLError, requests.ConnectionError) as err:
+        raise AnilibriaMirrorError(1, f"Darklibria unavailable: {type(err).__name__}")
     except requests.exceptions.RequestException as err:
         raise AnilibriaMirrorError(0, f"Darklibria unavailable: {type(err).__name__}")
     finally:
@@ -68,8 +68,10 @@ def _send_request(query: str, *, _retries: int = 0, **data: ty.Any) -> dict:
 
     try:
         response = requests.get(f"{api_url}{query}", params=data)
-    except requests.exceptions.SSLError:
-        err = AnilibriaApiError(1, f"Anilibria({api_url}) unavailable: SSLError")
+    except (requests.exceptions.SSLError, requests.ConnectionError) as err:
+        err = AnilibriaApiError(
+            1, f"Anilibria({api_url}) unavailable: {type(err).__name__}"
+        )
         if _retries == 3:
             raise err
         else:
