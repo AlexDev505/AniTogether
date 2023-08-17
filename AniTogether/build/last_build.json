@@ -1,5 +1,5 @@
 {
-    "version": "1.0.0-alpha.7",
+    "version": "1.0.0-betta.1",
     "files": {
         "AniTogether": [
             "AniTogether.exe",
@@ -70,6 +70,7 @@
             "go.svg",
             "group.svg",
             "home.svg",
+            "icon.png",
             "line.svg",
             "loading.gif",
             "muted.svg",

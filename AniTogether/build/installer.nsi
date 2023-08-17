@@ -2,7 +2,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "AniTogether"
-!define PRODUCT_VERSION "1.0.0-alpha.7"
+!define PRODUCT_VERSION "1.0.0-betta.1"
 !define PRODUCT_PUBLISHER "AlexDev505"
 !define PRODUCT_WEB_SITE "https://github.com/AlexDev505/AniTogether"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\AniTogether.exe"
@@ -107,6 +107,7 @@ Section "AniTogether" SEC01
   File "AniTogether\static\images\go.svg"
   File "AniTogether\static\images\group.svg"
   File "AniTogether\static\images\home.svg"
+  File "AniTogether\static\images\icon.png"
   File "AniTogether\static\images\line.svg"
   File "AniTogether\static\images\loading.gif"
   File "AniTogether\static\images\muted.svg"
@@ -223,6 +224,7 @@ Section Uninstall
   Delete "$INSTDIR\static\images\go.svg"
   Delete "$INSTDIR\static\images\group.svg"
   Delete "$INSTDIR\static\images\home.svg"
+  Delete "$INSTDIR\static\images\icon.png"
   Delete "$INSTDIR\static\images\line.svg"
   Delete "$INSTDIR\static\images\loading.gif"
   Delete "$INSTDIR\static\images\muted.svg"
@@ -289,7 +291,8 @@ Section Uninstall
 
   Delete "$LocalAppData\AniTogether\debug.log"
   Delete "$LocalAppData\AniTogether\history.csv"
-  RMDir "$LocalAppData"
+  Delete "$LocalAppData\AniTogether\temp.txt"
+  RMDir "$LocalAppData\AniTogether"
   
   Delete "$DESKTOP\AniTogether.lnk"
   Delete "$SMPROGRAMS\AniTogether.lnk"
