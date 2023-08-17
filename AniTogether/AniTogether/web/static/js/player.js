@@ -196,8 +196,12 @@ var members = {}
 var me = -1
 var mute_new_members = false
 var hoster = false
+var time_correction = 0
 lastRequest = 0
 
+function getTime() {
+    return utcNow() - time_correction
+}
 function setMuteNewMembers(value) {
     mute_new_members = value
 }
@@ -266,13 +270,13 @@ player.on("playing", function(value) {
     _seeking = false
     if (hoster) {
         websocket.send(JSON.stringify({
-            "command": "play", "time": Date.now() / 1000, "playback_time": player.currentTime()
+            "command": "play", "time": getTime(), "playback_time": player.currentTime()
         }))
     } else {
         if (_seeking_start != 0) {
-            cur_time = Date.now()
-            if (cur_time - _seeking_start > 1000)
-                player.currentTime(player.currentTime() + (cur_time - _seeking_start) / 1000 + 1)
+            cur_time = getTime()
+            if (cur_time - _seeking_start > 1)
+                player.currentTime(player.currentTime() + (cur_time - _seeking_start) + 1)
         }
         _seeking_start = 0
     }
@@ -284,10 +288,10 @@ player.on("seeking", function () {
     console.log("seeking")
     if (hoster) {
         websocket.send(JSON.stringify({
-            "command": "seek", "time": Date.now() / 1000, "playback_time": player.currentTime()
+            "command": "seek", "time": getTime(), "playback_time": player.currentTime()
         }))
     } else {
-        _seeking_start = Date.now()
+        _seeking_start = getTime()
     }
 })
 player.on("waiting", function(value) {
@@ -340,6 +344,9 @@ websocket.addEventListener("message", ({ data }) => {
         case "rewind_back_request":
           onRewindRequest(event)
           break
+        case "server_time_request_answer":
+          onServerTimeRequestAnswer(event)
+          break
         case "error":
           onError(event)
           break
@@ -348,6 +355,8 @@ websocket.addEventListener("message", ({ data }) => {
     }
 })
 function onInit(data) {
+    websocket.send(JSON.stringify({"command": "server_time_request", "time": utcNow()}))
+
     for (member of data.members) {
         members[member] = mute_new_members
     }
@@ -381,14 +390,14 @@ function onPause() {
     player.pause()
 }
 function onPlay(data) {
-    cur_time = Date.now() / 1000
+    cur_time = getTime()
     send_time = data.time
     playback_time = data.playback_time + (cur_time - send_time)
     player.currentTime(playback_time)
     player.play()
 }
 function onSeek(data) {
-    cur_time = Date.now() / 1000
+    cur_time = getTime()
     send_time = data.time
     playback_time = data.playback_time + (cur_time - send_time)
     player.pause()
@@ -402,13 +411,13 @@ function onPlaybackTimeRequest(data) {
     user_id = data.user_id
     websocket.send(JSON.stringify({
         "command": "playback_time_request_answer",
-        "time": Date.now() / 1000,
+        "time": getTime(),
         "playback_time": player.currentTime(),
         "user_id": user_id
     }))
 }
 function onPlaybackTimeRequestAnswer(data) {
-    cur_time = Date.now() / 1000
+    cur_time = getTime()
     send_time = data.time
     playback_time = data.playback_time + (cur_time - send_time)
     player.currentTime(playback_time)
@@ -439,6 +448,13 @@ function onPauseRequest(data) {
 function onRewindRequest(data) {
     if (!members[data.sender])
         addRewindRequestCard(data.sender)
+}
+function onServerTimeRequestAnswer(data) {
+    client_time = data.client_time
+    client_now = utcNow()
+    requests_delay = (client_now - client_time) / 2
+    server_time = data.server_time + requests_delay
+    time_correction = (client_now - server_time).toFixed(2)
 }
 function onError(data) {
     if (data.code == 1)  // Room does not exist

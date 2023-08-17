@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 import json
 import typing as ty
 
@@ -99,6 +100,8 @@ async def room_handler(websocket: WebSocketServerProtocol, room_id: ROOM_ID) -> 
             await rewind_back_request(websocket, room)
         elif data.get("command") == "leave_room":
             await leave_room(websocket, room_id)
+        elif data.get("command") == "server_time_request":
+            await server_time_request(websocket, data)
         else:
             await error(websocket, UnknownCommand())
 
@@ -225,6 +228,17 @@ async def leave_room(websocket: WebSocketServerProtocol, room_id: ROOM_ID) -> No
             f"<y>{room.room_id}</y>: {room.members[0].id}({room.members[0].ws.id}) "
             "is new hoster"
         )
+
+
+async def server_time_request(websocket: WebSocketServerProtocol, data: dict) -> None:
+    if (client_time := data.get("time")) is None:
+        return await error(websocket, ParamNotPassed("time"))
+    await send(
+        websocket,
+        "server_time_request_answer",
+        client_time=client_time,
+        server_time=datetime.utcnow().timestamp(),
+    )
 
 
 async def error(

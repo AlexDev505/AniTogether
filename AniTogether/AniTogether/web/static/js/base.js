@@ -71,3 +71,7 @@ function getHttpHost(host) {
 function getWsHost(host) {
     return `${(host.includes("localhost"))? 'ws' : 'wss'}` + '://' + host
 }
+function utcNow() {
+    var d = new Date();
+    return (d.getTime() + (d.getTimezoneOffset() * 60000)) / 1000
+}
