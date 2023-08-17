@@ -15,7 +15,7 @@ from prepare_nsis import prepare_installer, prepare_updater
 from version import Version
 
 
-__version__ = Version(1, 0, 0, "alpha", 4)
+__version__ = Version(1, 0, 0, "alpha", 5)
 dev_path = os.path.join(os.path.dirname(__file__), "..", "AniTogether")
 run_file_path = os.path.join(dev_path, "main.py")
 
