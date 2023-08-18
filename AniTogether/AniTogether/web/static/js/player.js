@@ -267,17 +267,35 @@ function synchronize() {
 
 var _seeking = false
 var _seeking_start = 0
+var _last_requests = {"play": 0, "seek": 0, "pause": 0}
+async function sendPlayingStatus(command, data) {
+    if (Date.now() - _last_requests[command] < 2000) {
+        await delay(2000);
+    }
+    if (command == "play") {
+        if (player.paused()) return
+    }
+    else if (command == "pause") {
+        if (!player.paused()) return
+    }
+    else if (command == "seek") {
+        if (Math.abs(player.currentTime() - data["playback_time"]) > 2) return
+    }
+
+    _last_requests[command] = Date.now()
+    data["command"] = command
+    websocket.send(JSON.stringify(data))
+}
+
 player.on("pause", function () {
     console.log("paused")
     if (hoster)
-      websocket.send(JSON.stringify({"command": "pause"}))
+      sendPlayingStatus("pause", {})
 })
 player.on("playing", function(value) {
     _seeking = false
     if (hoster) {
-        websocket.send(JSON.stringify({
-            "command": "play", "time": getTime(), "playback_time": player.currentTime()
-        }))
+        sendPlayingStatus("play", {"time": getTime(), "playback_time": player.currentTime()})
     } else {
         if (_seeking_start != 0) {
             cur_time = getTime()
@@ -293,9 +311,7 @@ player.on("seeking", function () {
     _seeking = true
     console.log("seeking")
     if (hoster) {
-        websocket.send(JSON.stringify({
-            "command": "seek", "time": getTime(), "playback_time": player.currentTime()
-        }))
+        sendPlayingStatus("seek", {"time": getTime(), "playback_time": player.currentTime()})
     } else {
         _seeking_start = getTime()
     }
@@ -304,7 +320,7 @@ player.on("waiting", function(value) {
     if (_seeking) return
     console.log("waiting")
     if (hoster) {
-        websocket.send(JSON.stringify({"command": "pause"}))
+        sendPlayingStatus("pause")
     } else {
         _seeking_start = Date.now()
     }
