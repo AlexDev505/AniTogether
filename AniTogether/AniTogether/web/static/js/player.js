@@ -227,10 +227,12 @@ function addMemberElement(member_id) {
     container.innerHTML = container.innerHTML + html
     setMuteButtonIcon(member_id)
 }
-function addRequestCard(user_id, text) {
+function addRequestCard(text, user_id) {
     html = `<div class="request-card">
       <span>${text}</span>
-      <button class="mute-btn" onclick="toggleMuteMember(${user_id});this.parentElement.remove()"></button>
+      ${(user_id != null)?
+          '<button class="mute-btn" onclick="toggleMuteMember(${user_id});this.parentElement.remove()"></button>' : ''
+      }
     </div>`
     container = document.getElementById("requests-overlay")
     container.innerHTML = container.innerHTML + html
@@ -239,15 +241,19 @@ function addRequestCard(user_id, text) {
     setTimeout(function(){if (container.children[0]) container.children[0].remove()},2200);
 }
 function addPauseRequestCard(user_id) {
-    addRequestCard(user_id, `Гость ${user_id} просит поставить на паузу`)
+    addRequestCard(`Гость ${user_id} просит поставить на паузу`, user_id)
 }
 function addRewindRequestCard(user_id) {
-    addRequestCard(user_id, `Гость ${user_id} просит отмотать назад`)
+    addRequestCard(`Гость ${user_id} просит отмотать назад`, user_id)
+}
+function addRequestSentCard() {
+    addRequestCard("запрос отправлен", null)
 }
 function sendRequest(data) {
     if (Date.now() - lastRequest < 2000) return
     lastRequest = Date.now()
     websocket.send(JSON.stringify(data))
+    addRequestSentCard()
 }
 function sendPauseRequest() {
     sendRequest({"command": "pause_request"})
