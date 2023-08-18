@@ -370,7 +370,7 @@ function onInit(data) {
     }
 
     if (hoster) {
-        history.pushState({}, null, "/watch?title_id=9419&episode=0&room_id="+room_id)
+        history.pushState({}, null, `/watch?title_id=${title.id}&episode=${episode}&room_id=${room_id}`)
         playlistButton.show()
         roomButton.show()
     } else {
@@ -439,7 +439,7 @@ function onHosterPromotion() {
     pauseRequestButton.hide()
     rewindRequestButton.hide()
     hoster = true
-    history.pushState({}, null, `/watch?title_id=9419&episode=${episode}&room_id=${room_id}`);
+    history.pushState({}, null, `/watch?title_id=${title.id}&episode=${episode}&room_id=${room_id}`);
 }
 function onPauseRequest(data) {
     if (!members[data.sender])
