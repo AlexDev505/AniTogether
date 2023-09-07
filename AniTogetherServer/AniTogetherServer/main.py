@@ -6,7 +6,12 @@ import websockets
 
 from logger import logger
 from ws_server import ws_handler
-from http_server import http_handler
+
+
+os.environ["COMPATIBLE_VERSION"] = '1.0.0-betta.2'
+
+
+from http_server import http_handler  # noqa
 
 
 async def main():

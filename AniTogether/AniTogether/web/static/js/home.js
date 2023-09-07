@@ -94,7 +94,7 @@ function createRoom(title_id, episode="0") {
     document.getElementById("loading-text").innerHTML = "создание комнаты"
     overlay("loading-overlay").show()
     doAjax(
-        `${getHttpHost(host)}/create_room?title_id=${title_id}&episode=${episode}`,
+        `${getHttpHost(host)}/create_room?version=${version}&title_id=${title_id}&episode=${episode}`,
         "GET", onRoomReady, {}
     )
 }
@@ -105,7 +105,7 @@ function joinRoom() {
 
     document.getElementById("loading-text").innerHTML = "поиск комнаты"
     overlay("loading-overlay").show()
-    doAjax(`${getHttpHost(host)}/get_room?room_id=${room_id}`, "GET", onRoomReady, {})
+    doAjax(`${getHttpHost(host)}/get_room?version=${version}&room_id=${room_id}`, "GET", onRoomReady, {})
 }
 function onRoomReady() {
     overlay("loading-overlay").hide()
@@ -113,9 +113,14 @@ function onRoomReady() {
     response = JSON.parse(this.responseText)
     if (response.status != "ok") {
         console.log(`Creating room failed: [${response.code}] ${response.message}`)
-        if (response.code == 1)
+        if (response.code == 1) {
             document.getElementById("info-text").innerHTML = "такой комнаты не существует"
             overlay("info-overlay").show()
+        } else if (response.code == 6) {
+            document.getElementById("info-text").innerHTML = "Ваша версия приложения устарела\nТребуется обновление"
+            overlay("info-overlay").show()
+            checkUpdate()
+        }
         return
     }
     window.open(

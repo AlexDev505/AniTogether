@@ -1,18 +1,26 @@
 from __future__ import annotations
-import typing as ty
 
 import http
 import json
+import os
 import re
+import typing as ty
+from functools import wraps
+from loguru import logger
 
 import rooms
-from exceptions import ParamNotPassed, RoomDoesNotExists, UnknownCommand
+from exceptions import ParamNotPassed, RoomDoesNotExists, UnknownCommand, \
+    NotCompatibleVersion
+from version import Version
 
 
 if ty.TYPE_CHECKING:
     from exceptions import AniTogetherError
 
     ANSWER = tuple[http.HTTPStatus, dict, bytes]
+
+
+COMPATIBLE_VERSION = Version.from_str(os.environ["COMPATIBLE_VERSION"])
 
 
 async def http_handler(path: str, _request_headers):
@@ -30,6 +38,23 @@ async def http_handler(path: str, _request_headers):
         return error(UnknownCommand())
 
 
+def check_version(fn):
+    @wraps(fn)
+    def _wrapper(data: dict) -> ANSWER:
+        try:
+            version = data.get("version")
+            if Version.from_str(version) < COMPATIBLE_VERSION:
+                raise ValueError("")
+        except (ValueError, TypeError) as err:
+            logger.debug(f"Request from not compatible version: {version}")
+            return error(NotCompatibleVersion())
+
+        return fn(data)
+
+    return _wrapper
+
+
+@check_version
 def create_room(data: dict) -> ANSWER:
     if (title_id := data.get("title_id")) is None:
         return error(ParamNotPassed("title_id"))
@@ -40,6 +65,7 @@ def create_room(data: dict) -> ANSWER:
     return answer(room_id=room_id, title_id=title_id, episode=episode)
 
 
+@check_version
 def get_room(data: dict) -> ANSWER:
     if (room_id := data.get("room_id")) is None:
         return error(ParamNotPassed("room_id"))

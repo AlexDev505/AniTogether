@@ -34,3 +34,8 @@ class ParamNotPassed(AniTogetherError):
         self.param_name = param_name
         self.message = self.message.format(param_name=param_name)
         super().__init__()
+
+
+class NotCompatibleVersion(AniTogetherError):
+    code = 6
+    message = "Your version is not supported"
