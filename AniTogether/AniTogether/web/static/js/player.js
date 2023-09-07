@@ -269,17 +269,11 @@ var _seeking = false
 var _seeking_start = 0
 var _last_requests = {"play": 0, "seek": 0, "pause": 0}
 async function sendPlayingStatus(command, data) {
-    if (Date.now() - _last_requests[command] < 2000) {
+    let now = Date.now()
+    if (now - _last_requests[command] < 2000) {
+        _last_requests[command] = now
         await delay(2000);
-    }
-    if (command == "play") {
-        if (player.paused()) return
-    }
-    else if (command == "pause") {
-        if (!player.paused()) return
-    }
-    else if (command == "seek") {
-        if (Math.abs(player.currentTime() - data["playback_time"]) > 2) return
+        if (now != _last_requests[command]) return
     }
 
     _last_requests[command] = Date.now()
