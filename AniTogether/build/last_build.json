@@ -1,20 +1,59 @@
 {
-    "version": "1.0.0-betta.2",
+    "version": "1.0.0-betta.3",
     "files": {
         "AniTogether": [
             "AniTogether.exe",
+            "api-ms-win-core-console-l1-1-0.dll",
+            "api-ms-win-core-datetime-l1-1-0.dll",
+            "api-ms-win-core-debug-l1-1-0.dll",
+            "api-ms-win-core-errorhandling-l1-1-0.dll",
+            "api-ms-win-core-file-l1-1-0.dll",
+            "api-ms-win-core-file-l1-2-0.dll",
+            "api-ms-win-core-file-l2-1-0.dll",
+            "api-ms-win-core-handle-l1-1-0.dll",
+            "api-ms-win-core-heap-l1-1-0.dll",
+            "api-ms-win-core-interlocked-l1-1-0.dll",
+            "api-ms-win-core-libraryloader-l1-1-0.dll",
+            "api-ms-win-core-localization-l1-2-0.dll",
+            "api-ms-win-core-memory-l1-1-0.dll",
+            "api-ms-win-core-namedpipe-l1-1-0.dll",
+            "api-ms-win-core-processenvironment-l1-1-0.dll",
+            "api-ms-win-core-processthreads-l1-1-0.dll",
+            "api-ms-win-core-processthreads-l1-1-1.dll",
+            "api-ms-win-core-profile-l1-1-0.dll",
+            "api-ms-win-core-rtlsupport-l1-1-0.dll",
+            "api-ms-win-core-string-l1-1-0.dll",
+            "api-ms-win-core-synch-l1-1-0.dll",
+            "api-ms-win-core-synch-l1-2-0.dll",
+            "api-ms-win-core-sysinfo-l1-1-0.dll",
+            "api-ms-win-core-timezone-l1-1-0.dll",
+            "api-ms-win-core-util-l1-1-0.dll",
+            "api-ms-win-crt-conio-l1-1-0.dll",
+            "api-ms-win-crt-convert-l1-1-0.dll",
+            "api-ms-win-crt-environment-l1-1-0.dll",
+            "api-ms-win-crt-filesystem-l1-1-0.dll",
+            "api-ms-win-crt-heap-l1-1-0.dll",
+            "api-ms-win-crt-locale-l1-1-0.dll",
+            "api-ms-win-crt-math-l1-1-0.dll",
+            "api-ms-win-crt-process-l1-1-0.dll",
+            "api-ms-win-crt-runtime-l1-1-0.dll",
+            "api-ms-win-crt-stdio-l1-1-0.dll",
+            "api-ms-win-crt-string-l1-1-0.dll",
+            "api-ms-win-crt-time-l1-1-0.dll",
+            "api-ms-win-crt-utility-l1-1-0.dll",
             "base_library.zip",
             "libcrypto-1_1.dll",
-            "libffi-7.dll",
+            "libffi-8.dll",
             "libssl-1_1.dll",
             "pyexpat.pyd",
-            "python310.dll",
+            "python311.dll",
             "select.pyd",
+            "ucrtbase.dll",
             "unicodedata.pyd",
             "VCRUNTIME140.dll",
             "_asyncio.pyd",
             "_bz2.pyd",
-            "_cffi_backend.cp310-win_amd64.pyd",
+            "_cffi_backend.cp311-win_amd64.pyd",
             "_ctypes.pyd",
             "_decimal.pyd",
             "_elementtree.pyd",
@@ -33,8 +72,8 @@
             "py.typed"
         ],
         "AniTogether\\charset_normalizer": [
-            "md.cp310-win_amd64.pyd",
-            "md__mypyc.cp310-win_amd64.pyd"
+            "md.cp311-win_amd64.pyd",
+            "md__mypyc.cp311-win_amd64.pyd"
         ],
         "AniTogether\\clr_loader": [],
         "AniTogether\\clr_loader\\ffi": [],
@@ -46,10 +85,10 @@
             "ClrLoader.dll"
         ],
         "AniTogether\\markupsafe": [
-            "_speedups.cp310-win_amd64.pyd"
+            "_speedups.cp311-win_amd64.pyd"
         ],
         "AniTogether\\orjson": [
-            "orjson.cp310-win_amd64.pyd"
+            "orjson.cp311-win_amd64.pyd"
         ],
         "AniTogether\\pythonnet": [],
         "AniTogether\\pythonnet\\runtime": [

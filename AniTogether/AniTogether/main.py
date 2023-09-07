@@ -13,13 +13,12 @@ os.environ["HISTORY_PATH"] = os.path.join(os.environ["APP_DIR"], "history.csv")
 # Путь к файлу с временными данными
 os.environ["TEMP_PATH"] = os.path.join(os.environ["APP_DIR"], "temp.txt")
 # Версия приложения
-os.environ["VERSION"] = "1.0.0-betta.2"
+os.environ["VERSION"] = "1.0.0-betta.3"
 # Сервер
 # os.environ["HOST"] = "localhost:8080"
 os.environ["HOST"] = "anitogetherserver.onrender.com"
 
-# TODO: remove
-os.environ["CONSOLE"] = "1"
+os.environ["DEBUG"] = "0"
 
 
 from logger import logger  # noqa
@@ -67,7 +66,7 @@ def main() -> None:
     window.events.closed += _on_closed
     window.events.shown += _on_shown
 
-    webview.start(debug=True)
+    webview.start(debug=bool(int(os.environ["DEBUG"])))
 
 
 if __name__ == "__main__":

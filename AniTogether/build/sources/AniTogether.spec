@@ -5,10 +5,10 @@ block_cipher = None
 
 
 a = Analysis(
-    ['E:\\AlexDev\\PycharmProjects\\AniTogetherProject\\AniTogether\\build\\..\\AniTogether\\run.py'],
+    ['E:\\PycharmProjects\\AniTogetherProject\\AniTogether\\build\\..\\AniTogether\\run.py'],
     pathex=[],
     binaries=[],
-    datas=[('E:\\AlexDev\\PycharmProjects\\AniTogetherProject\\AniTogether\\build\\..\\AniTogether\\web\\static', 'static'), ('E:\\AlexDev\\PycharmProjects\\AniTogetherProject\\AniTogether\\build\\..\\AniTogether\\web\\templates', 'templates')],
+    datas=[('E:\\PycharmProjects\\AniTogetherProject\\AniTogether\\build\\..\\AniTogether\\web\\static', 'static'), ('E:\\PycharmProjects\\AniTogetherProject\\AniTogether\\build\\..\\AniTogether\\web\\templates', 'templates')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
