@@ -314,7 +314,7 @@ player.on("waiting", function(value) {
     if (_seeking) return
     console.log("waiting")
     if (hoster) {
-        sendPlayingStatus("pause")
+        sendPlayingStatus("pause", {})
     } else {
         _seeking_start = Date.now()
     }
