@@ -1,5 +1,6 @@
 const player = videojs('my-video')
-const websocket = new WebSocket(getWsHost(host));
+var websocket
+
 
 window.onkeydown = function(e){
     if (e.code == "Space")
@@ -148,7 +149,7 @@ function initTitle() {
 
 function setEpisode(episode_number) {
     history.pushState({}, null, `/watch?title_id=9419&episode=${episode_number}&room_id=${room_id}`);
-    websocket.send(JSON.stringify({"command": "set_episode", "episode": episode_number}))
+    sendWsRequest({"command": "set_episode", "episode": episode_number})
     initEpisode(episode_number)
 }
 function initEpisode(episode_number) {
@@ -252,7 +253,7 @@ function addRequestSentCard() {
 function sendRequest(data) {
     if (Date.now() - lastRequest < 2000) return
     lastRequest = Date.now()
-    websocket.send(JSON.stringify(data))
+    sendWsRequest(data)
     addRequestSentCard()
 }
 function sendPauseRequest() {
@@ -262,7 +263,7 @@ function sendRewindRequest() {
     sendRequest({"command": "rewind_back_request"})
 }
 function synchronize() {
-    websocket.send(JSON.stringify({"command": "playback_time_request"}))
+    sendWsRequest({"command": "playback_time_request"})
 }
 
 var _seeking = false
@@ -278,7 +279,7 @@ async function sendPlayingStatus(command, data) {
 
     _last_requests[command] = Date.now()
     data["command"] = command
-    websocket.send(JSON.stringify(data))
+    sendWsRequest(data)
 }
 
 player.on("pause", function () {
@@ -320,7 +321,32 @@ player.on("waiting", function(value) {
     }
 })
 
-websocket.addEventListener("message", ({ data }) => {
+var websocket
+
+function connectWs() {
+    console.log("Connecting Ws. ", getWsHost(host))
+    websocket = new WebSocket(getWsHost(host))
+    websocket.onmessage = WsMessageHandler
+    websocket.onclose = onWsCloseHandler
+    websocket.addEventListener("open", () => {
+        sendWsRequest({"command": "join", "room_id": room_id})
+    });
+}
+async function onWsCloseHandler(event) {
+    console.log("Ws connection closed. ", event.reason)
+    await delay(1000)
+    connectWs()
+}
+function sendWsRequest(data) {
+    if (websocket.readyState != websocket.OPEN) {
+        console.log("Ws connection closed. ")
+        connectWs()
+        return
+    }
+    websocket.send(JSON.stringify(data))
+}
+
+function WsMessageHandler({data}) {
     const event = JSON.parse(data)
     console.log(event)
     switch (event.type) {
@@ -369,9 +395,9 @@ websocket.addEventListener("message", ({ data }) => {
         default:
           throw new Error(`Unsupported event type: ${vent.type}.`)
     }
-})
+}
 function onInit(data) {
-    websocket.send(JSON.stringify({"command": "server_time_request", "time": utcNow()}))
+    sendWsRequest({"command": "server_time_request", "time": utcNow()})
 
     for (member of data.members) {
         members[member] = mute_new_members
@@ -390,7 +416,7 @@ function onInit(data) {
         playlistButton.show()
         roomButton.show()
     } else {
-        websocket.send(JSON.stringify({"command": "playback_time_request"}))
+        sendWsRequest({"command": "playback_time_request"})
         synchronizeButton.show()
         pauseRequestButton.show()
         rewindRequestButton.show()
@@ -425,12 +451,12 @@ function onSetEpisode(data) {
 }
 function onPlaybackTimeRequest(data) {
     user_id = data.user_id
-    websocket.send(JSON.stringify({
+    sendWsRequest({
         "command": "playback_time_request_answer",
         "time": getTime(),
         "playback_time": player.currentTime(),
         "user_id": user_id
-    }))
+    })
 }
 function onPlaybackTimeRequestAnswer(data) {
     cur_time = getTime()
@@ -478,11 +504,9 @@ function onError(data) {
 }
 
 function init() {
+    connectWs()
     initTitle()
     initEpisode(episode)
-    websocket.addEventListener("open", () => {
-        websocket.send(JSON.stringify({"command": "join", "room_id": room_id}))
-    });
     pauseRequestButton.hide()
     rewindRequestButton.hide()
     synchronizeButton.hide()
