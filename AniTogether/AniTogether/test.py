@@ -15,8 +15,8 @@ os.environ["TEMP_PATH"] = os.path.join(os.environ["APP_DIR"], "temp.txt")
 # Версия приложения
 os.environ["VERSION"] = "1.0.0-betta.3"
 # Сервер
-os.environ["HOST"] = "localhost:8080"
-# os.environ["HOST"] = "anitogetherserver.onrender.com"
+# os.environ["HOST"] = "localhost:8080"
+os.environ["HOST"] = "anitogetherserver.onrender.com"
 
 os.environ["CONSOLE"] = "1"
 

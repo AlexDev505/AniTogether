@@ -8,7 +8,7 @@ from logger import logger
 from ws_server import ws_handler
 
 
-os.environ["COMPATIBLE_VERSION"] = '1.0.0-betta.3'
+os.environ["COMPATIBLE_VERSION"] = '1.0.0-betta.4'
 
 
 from http_server import http_handler  # noqa
